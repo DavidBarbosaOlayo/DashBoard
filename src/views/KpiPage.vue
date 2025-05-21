@@ -8,7 +8,7 @@
         <ion-title class="ion-text-center">
           <div class="header-title">
             <ion-icon :icon="statsChartOutline" class="header-icon" />
-            <span>KPIs</span>
+            <span>Dashboard de KPIs</span>
           </div>
         </ion-title>
         <ion-buttons slot="end">
@@ -20,15 +20,98 @@
     </ion-header>
 
     <ion-content class="ion-padding">
+      <!-- Resumen de KPIs -->
+      <div class="kpi-summary">
+        <div class="kpi-summary-card">
+          <div class="kpi-summary-icon business">
+            <ion-icon :icon="rocketOutline" />
+          </div>
+          <div class="kpi-summary-content">
+            <div class="kpi-summary-title">KPIs de Negocio</div>
+            <div class="kpi-summary-value">2/2 activos</div>
+          </div>
+          <div class="kpi-summary-progress">
+            <div class="progress-bar">
+              <div class="progress-fill business-fill" :style="{ width: '65%' }"></div>
+            </div>
+            <div class="progress-text">65% completado</div>
+          </div>
+        </div>
+        
+        <div class="kpi-summary-card">
+          <div class="kpi-summary-icon technical">
+            <ion-icon :icon="codeSlashOutline" />
+          </div>
+          <div class="kpi-summary-content">
+            <div class="kpi-summary-title">KPIs Técnicos</div>
+            <div class="kpi-summary-value">2/2 activos</div>
+          </div>
+          <div class="kpi-summary-progress">
+            <div class="progress-bar">
+              <div class="progress-fill technical-fill" :style="{ width: '42%' }"></div>
+            </div>
+            <div class="progress-text">42% completado</div>
+          </div>
+        </div>
+        
+        <div class="kpi-summary-card">
+          <div class="kpi-summary-icon overall">
+            <ion-icon :icon="trendingUpOutline" />
+          </div>
+          <div class="kpi-summary-content">
+            <div class="kpi-summary-title">Progreso General</div>
+            <div class="kpi-summary-value">4/4 activos</div>
+          </div>
+          <div class="kpi-summary-progress">
+            <div class="progress-bar">
+              <div class="progress-fill overall-fill" :style="{ width: '53%' }"></div>
+            </div>
+            <div class="progress-text">53% completado</div>
+          </div>
+        </div>
+      </div>
+
       <div class="page-container">
+        <!-- Filtros y Controles -->
+        <div class="controls-container">
+          <div class="filter-controls">
+            <ion-segment v-model="activeFilter" mode="ios">
+              <ion-segment-button value="all">
+                <ion-label>Todos</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="business">
+                <ion-label>Negocio</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="technical">
+                <ion-label>Técnicos</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          </div>
+          <div class="action-controls">
+            <ion-button fill="clear" size="small" @click="expandAll">
+              <ion-icon slot="start" :icon="expandOutline" />
+              Expandir
+            </ion-button>
+            <ion-button fill="clear" size="small" @click="collapseAll">
+              <ion-icon slot="start" :icon="contractOutline" />
+              Colapsar
+            </ion-button>
+          </div>
+        </div>
+
         <!-- Sección de KPIs de Negocio -->
-        <div class="section-container">
+        <div class="section-container" v-show="activeFilter === 'all' || activeFilter === 'business'">
           <div class="section-header">
-            <ion-icon :icon="rocketOutline" class="section-icon business" />
-            <h2>KPIs de Negocio</h2>
+            <div class="section-title">
+              <ion-icon :icon="rocketOutline" class="section-icon business" />
+              <h2>KPIs de Negocio</h2>
+            </div>
+            <ion-button fill="clear" size="small" class="add-kpi-btn">
+              <ion-icon slot="icon-only" :icon="addOutline" />
+            </ion-button>
           </div>
           <div class="kpi-cards">
-            <ion-accordion-group expand="inset" :multiple="true">
+            <ion-accordion-group ref="businessAccordion" expand="inset" :multiple="true">
               <ion-accordion
                 v-for="item in businessGoals"
                 :key="item.id"
@@ -42,22 +125,66 @@
                       <span>{{ item.title }}</span>
                     </div>
                   </ion-label>
+                  <div class="kpi-status" :class="getStatusClass(item.progress)">
+                    {{ getStatusText(item.progress) }}
+                  </div>
                 </ion-item>
-                <div class="ion-padding accordion-content" slot="content">
-                  <p class="kpi-description">{{ item.description }}</p>
-                  <div class="smart-list">
-                    <div
-                      v-for="(element, index) in item.smart"
-                      :key="index"
-                      class="smart-item"
-                    >
-                      <div
-                        class="smart-letter"
-                        :class="`letter-${element.letter.toLowerCase()}`"
-                      >
-                        {{ element.letter }}
+                <div class="accordion-content" slot="content">
+                  <div class="kpi-details">
+                    <div class="kpi-progress-container">
+                      <div class="kpi-progress-header">
+                        <h3>Progreso</h3>
+                        <span class="kpi-progress-value">{{ item.progress }}%</span>
                       </div>
-                      <div class="smart-content">{{ element.content }}</div>
+                      <div class="kpi-progress-bar">
+                        <div class="kpi-progress-fill" :class="getProgressFillClass(item.progress)" :style="{ width: `${item.progress}%` }"></div>
+                      </div>
+                    </div>
+                    
+                    <p class="kpi-description">{{ item.description }}</p>
+                    
+                    <div class="kpi-meta">
+                      <div class="kpi-meta-item">
+                        <ion-icon :icon="calendarOutline" />
+                        <span>{{ item.deadline }}</span>
+                      </div>
+                      <div class="kpi-meta-item">
+                        <ion-icon :icon="personOutline" />
+                        <span>{{ item.owner }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="smart-container">
+                      <h3>Objetivos SMART</h3>
+                      <div class="smart-list">
+                        <div
+                          v-for="(element, index) in item.smart"
+                          :key="index"
+                          class="smart-item"
+                        >
+                          <div
+                            class="smart-letter"
+                            :class="`letter-${element.letter.toLowerCase()}`"
+                          >
+                            {{ element.letter }}
+                          </div>
+                          <div class="smart-content">
+                            <div class="smart-title">{{ element.title }}</div>
+                            <div class="smart-description">{{ element.content }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="kpi-actions">
+                      <ion-button fill="outline" size="small">
+                        <ion-icon slot="start" :icon="createOutline" />
+                        Editar
+                      </ion-button>
+                      <ion-button fill="outline" size="small">
+                        <ion-icon slot="start" :icon="analyticsOutline" />
+                        Detalles
+                      </ion-button>
                     </div>
                   </div>
                 </div>
@@ -67,13 +194,18 @@
         </div>
 
         <!-- Sección de KPIs Técnicos -->
-        <div class="section-container">
+        <div class="section-container" v-show="activeFilter === 'all' || activeFilter === 'technical'">
           <div class="section-header">
-            <ion-icon :icon="codeSlashOutline" class="section-icon technical" />
-            <h2>KPIs Técnicos</h2>
+            <div class="section-title">
+              <ion-icon :icon="codeSlashOutline" class="section-icon technical" />
+              <h2>KPIs Técnicos</h2>
+            </div>
+            <ion-button fill="clear" size="small" class="add-kpi-btn">
+              <ion-icon slot="icon-only" :icon="addOutline" />
+            </ion-button>
           </div>
           <div class="kpi-cards">
-            <ion-accordion-group expand="inset" :multiple="true">
+            <ion-accordion-group ref="technicalAccordion" expand="inset" :multiple="true">
               <ion-accordion
                 v-for="item in technicalGoals"
                 :key="item.id"
@@ -87,22 +219,66 @@
                       <span>{{ item.title }}</span>
                     </div>
                   </ion-label>
+                  <div class="kpi-status" :class="getStatusClass(item.progress)">
+                    {{ getStatusText(item.progress) }}
+                  </div>
                 </ion-item>
-                <div class="ion-padding accordion-content" slot="content">
-                  <p class="kpi-description">{{ item.description }}</p>
-                  <div class="smart-list">
-                    <div
-                      v-for="(element, index) in item.smart"
-                      :key="index"
-                      class="smart-item"
-                    >
-                      <div
-                        class="smart-letter"
-                        :class="`letter-${element.letter.toLowerCase()}`"
-                      >
-                        {{ element.letter }}
+                <div class="accordion-content" slot="content">
+                  <div class="kpi-details">
+                    <div class="kpi-progress-container">
+                      <div class="kpi-progress-header">
+                        <h3>Progreso</h3>
+                        <span class="kpi-progress-value">{{ item.progress }}%</span>
                       </div>
-                      <div class="smart-content">{{ element.content }}</div>
+                      <div class="kpi-progress-bar">
+                        <div class="kpi-progress-fill" :class="getProgressFillClass(item.progress)" :style="{ width: `${item.progress}%` }"></div>
+                      </div>
+                    </div>
+                    
+                    <p class="kpi-description">{{ item.description }}</p>
+                    
+                    <div class="kpi-meta">
+                      <div class="kpi-meta-item">
+                        <ion-icon :icon="calendarOutline" />
+                        <span>{{ item.deadline }}</span>
+                      </div>
+                      <div class="kpi-meta-item">
+                        <ion-icon :icon="personOutline" />
+                        <span>{{ item.owner }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="smart-container">
+                      <h3>Objetivos SMART</h3>
+                      <div class="smart-list">
+                        <div
+                          v-for="(element, index) in item.smart"
+                          :key="index"
+                          class="smart-item"
+                        >
+                          <div
+                            class="smart-letter"
+                            :class="`letter-${element.letter.toLowerCase()}`"
+                          >
+                            {{ element.letter }}
+                          </div>
+                          <div class="smart-content">
+                            <div class="smart-title">{{ element.title }}</div>
+                            <div class="smart-description">{{ element.content }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="kpi-actions">
+                      <ion-button fill="outline" size="small">
+                        <ion-icon slot="start" :icon="createOutline" />
+                        Editar
+                      </ion-button>
+                      <ion-button fill="outline" size="small">
+                        <ion-icon slot="start" :icon="analyticsOutline" />
+                        Detalles
+                      </ion-button>
                     </div>
                   </div>
                 </div>
@@ -129,18 +305,29 @@ import {
   IonItem,
   IonLabel,
   IonIcon,
-  IonButton
+  IonButton,
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import {
   statsChartOutline,
   rocketOutline,
   codeSlashOutline,
-  notificationsOutline
+  notificationsOutline,
+  trendingUpOutline,
+  calendarOutline,
+  personOutline,
+  createOutline,
+  analyticsOutline,
+  addOutline,
+  expandOutline,
+  contractOutline
 } from 'ionicons/icons';
 
 interface SmartElement {
   letter: string;
+  title: string;
   content: string;
 }
 
@@ -148,32 +335,49 @@ interface SmartGoal {
   id: number;
   title: string;
   description: string;
+  progress: number;
+  deadline: string;
+  owner: string;
   smart: SmartElement[];
 }
+
+const activeFilter = ref('all');
+const businessAccordion = ref<HTMLIonAccordionGroupElement | null>(null);
+const technicalAccordion = ref<HTMLIonAccordionGroupElement | null>(null);
+
+// Valores para almacenar los estados de los acordeones
+const businessAccordionValues = ref<string[]>([]);
+const technicalAccordionValues = ref<string[]>([]);
 
 const businessGoals = ref<SmartGoal[]>([
   {
     id: 1,
     title: 'Aumentar visitas',
-    description: 'Aumentar las visitas un 50% en 30 días duplicando contenido.',
+    description: 'Aumentar las visitas un 50% en 30 días duplicando contenido y mejorando SEO.',
+    progress: 65,
+    deadline: '30 Jun 2025',
+    owner: 'Ana Martínez',
     smart: [
-      { letter: 'S', content: 'Aumentar visitas en un 50%' },
-      { letter: 'M', content: 'De 1.000 a 1.500' },
-      { letter: 'A', content: 'Duplicando contenido' },
-      { letter: 'R', content: 'Preparar lanzamiento' },
-      { letter: 'T', content: 'En 30 días' }
+      { letter: 'S', title: 'Específico', content: 'Aumentar visitas en un 50%' },
+      { letter: 'M', title: 'Medible', content: 'De 1.000 a 1.500 visitas diarias' },
+      { letter: 'A', title: 'Alcanzable', content: 'Duplicando contenido y optimizando SEO' },
+      { letter: 'R', title: 'Relevante', content: 'Preparar lanzamiento de nueva funcionalidad' },
+      { letter: 'T', title: 'Temporal', content: 'En 30 días (30 de junio)' }
     ]
   },
   {
     id: 2,
     title: 'Incrementar ventas',
-    description: 'Subir un 20% las ventas en 1 año ofreciendo nuevos productos.',
+    description: 'Subir un 20% las ventas en 1 año ofreciendo nuevos productos y mejorando la conversión.',
+    progress: 35,
+    deadline: '31 Dic 2025',
+    owner: 'Carlos Rodríguez',
     smart: [
-      { letter: 'S', content: 'Aumentar ventas en un 20%' },
-      { letter: 'M', content: 'De 200.000 a 240.000' },
-      { letter: 'A', content: 'Con nuevos productos' },
-      { letter: 'R', content: 'Aprovechar base de clientes' },
-      { letter: 'T', content: 'En 12 meses' }
+      { letter: 'S', title: 'Específico', content: 'Aumentar ventas en un 20%' },
+      { letter: 'M', title: 'Medible', content: 'De 200.000€ a 240.000€ anuales' },
+      { letter: 'A', title: 'Alcanzable', content: 'Con nuevos productos y mejoras en conversión' },
+      { letter: 'R', title: 'Aprovechar base de clientes existente' },
+      { letter: 'T', title: 'En 12 meses (31 de diciembre)' }
     ]
   }
 ]);
@@ -182,35 +386,120 @@ const technicalGoals = ref<SmartGoal[]>([
   {
     id: 1,
     title: 'Optimizar carga',
-    description: 'Reducir tiempo de carga de la app en un 30% antes de fin de mes.',
+    description: 'Reducir tiempo de carga de la app en un 30% antes de fin de mes mejorando imágenes y caché.',
+    progress: 42,
+    deadline: '31 May 2025',
+    owner: 'David López',
     smart: [
-      { letter: 'S', content: 'Reducir tiempo de carga' },
-      { letter: 'M', content: 'Un 30% menos' },
-      { letter: 'A', content: 'Mejorando imágenes y caché' },
-      { letter: 'R', content: 'Mejor experiencia de usuario' },
-      { letter: 'T', content: 'Antes de fin de mes' }
+      { letter: 'S', title: 'Específico', content: 'Reducir tiempo de carga de la aplicación' },
+      { letter: 'M', title: 'Medible', content: 'Un 30% menos (de 3s a 2.1s)' },
+      { letter: 'A', title: 'Alcanzable', content: 'Mejorando imágenes y sistema de caché' },
+      { letter: 'R', title: 'Relevante', content: 'Mejor experiencia de usuario y retención' },
+      { letter: 'T', title: 'Temporal', content: 'Antes de fin de mes (31 de mayo)' }
     ]
   },
   {
     id: 2,
     title: 'Mejorar test coverage',
-    description: 'Cubrir 90% del código con tests antes del próximo sprint.',
+    description: 'Cubrir 90% del código con tests antes del próximo sprint para aumentar la fiabilidad.',
+    progress: 28,
+    deadline: '15 Jun 2025',
+    owner: 'Elena Sánchez',
     smart: [
-      { letter: 'S', content: 'Aumentar cobertura de tests' },
-      { letter: 'M', content: '90% de código' },
-      { letter: 'A', content: 'Escribiendo tests unitarios' },
-      { letter: 'R', content: 'Aumentar fiabilidad del código' },
-      { letter: 'T', content: 'Antes del próximo sprint' }
+      { letter: 'S', title: 'Específico', content: 'Aumentar cobertura de tests' },
+      { letter: 'M', title: 'Medible', content: '90% del código base' },
+      { letter: 'A', title: 'Alcanzable', content: 'Escribiendo tests unitarios e integración' },
+      { letter: 'R', title: 'Relevante', content: 'Aumentar fiabilidad y reducir bugs' },
+      { letter: 'T', title: 'Temporal', content: 'Antes del próximo sprint (15 de junio)' }
     ]
   }
 ]);
+
+// Inicializar los valores de los acordeones cuando el componente se monta
+onMounted(() => {
+  // Inicializar los arrays con los IDs de los KPIs
+  businessAccordionValues.value = businessGoals.value.map(goal => goal.id.toString());
+  technicalAccordionValues.value = technicalGoals.value.map(goal => goal.id.toString());
+});
+
+// Funciones para expandir/colapsar acordeones
+const expandAll = () => {
+  if (businessAccordion.value) {
+    // En lugar de modificar directamente la prop 'value', usamos el método 'value' del componente
+    businessAccordion.value.value = businessAccordionValues.value;
+  }
+  if (technicalAccordion.value) {
+    technicalAccordion.value.value = technicalAccordionValues.value;
+  }
+};
+
+const collapseAll = () => {
+  if (businessAccordion.value) {
+    // Para colapsar, establecemos un array vacío en lugar de undefined
+    businessAccordion.value.value = [];
+  }
+  if (technicalAccordion.value) {
+    technicalAccordion.value.value = [];
+  }
+};
+
+// Funciones para determinar el estado del KPI
+const getStatusClass = (progress: number) => {
+  if (progress < 30) return 'status-danger';
+  if (progress < 70) return 'status-warning';
+  return 'status-success';
+};
+
+const getStatusText = (progress: number) => {
+  if (progress < 30) return 'En riesgo';
+  if (progress < 70) return 'En progreso';
+  return 'En objetivo';
+};
+
+// Función para determinar la clase de relleno de la barra de progreso
+const getProgressFillClass = (progress: number) => {
+  if (progress < 30) return 'progress-fill-danger';
+  if (progress < 70) return 'progress-fill-warning';
+  return 'progress-fill-success';
+};
 </script>
 
 <style scoped>
-/* Estilos para el header */
+/* Variables de colores con mejor contraste */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+  
+  --color-secondary: #059669;
+  --color-secondary-light: #10b981;
+  --color-secondary-dark: #047857;
+  
+  --color-accent: #7c3aed;
+  --color-accent-light: #8b5cf6;
+  --color-accent-dark: #6d28d9;
+  
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  
+  --color-dark: #111827;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+/* Header */
 .custom-toolbar {
-  --background: var(--ion-color-primary);
-  --color: white;
+  --background: #1e293b;
+  --color: #ffffff;
   padding: 5px 0;
 }
 
@@ -226,26 +515,168 @@ const technicalGoals = ref<SmartGoal[]>([
   font-size: 20px;
 }
 
-/* Contenedor principal */
+/* KPI Summary Cards */
+.kpi-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-summary-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kpi-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.kpi-summary-icon ion-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.kpi-summary-icon.business {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.kpi-summary-icon.technical {
+  background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.kpi-summary-icon.overall {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+
+.kpi-summary-content {
+  margin-bottom: 12px;
+}
+
+.kpi-summary-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.kpi-summary-value {
+  font-size: 14px;
+  color: #475569;
+}
+
+.kpi-summary-progress {
+  margin-top: auto;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.business-fill {
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+}
+
+.technical-fill {
+  background: linear-gradient(90deg, #10b981, #047857);
+}
+
+.overall-fill {
+  background: linear-gradient(90deg, #8b5cf6, #6d28d9);
+}
+
+.progress-fill-success {
+  background: linear-gradient(90deg, #10b981, #047857);
+}
+
+.progress-fill-warning {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.progress-fill-danger {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #475569;
+  text-align: right;
+}
+
+/* Layout */
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 0;
 }
 
-/* Secciones */
+.controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-controls {
+  flex: 1;
+  min-width: 280px;
+}
+
+.action-controls {
+  display: flex;
+  gap: 8px;
+}
+
 .section-container {
   margin-bottom: 32px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .section-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
 }
 
 .section-icon {
-  font-size: 24px;
+  font-size: 20px;
   padding: 12px;
   border-radius: 12px;
   margin-right: 16px;
@@ -253,31 +684,44 @@ const technicalGoals = ref<SmartGoal[]>([
 }
 
 .section-icon.business {
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-tint));
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
 .section-icon.technical {
-  background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-secondary-tint));
+  background: linear-gradient(135deg, #10b981, #047857);
 }
 
-.section-header h2 {
+.section-title h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--ion-color-dark);
+  color: #1e293b;
 }
 
-/* Acordeones */
+.add-kpi-btn {
+  --color: #475569;
+}
+
+/* Accordion */
 .custom-accordion {
   margin-bottom: 16px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.custom-accordion:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .accordion-header {
   --background: white;
   --border-color: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
 }
 
 .accordion-title {
@@ -290,27 +734,121 @@ const technicalGoals = ref<SmartGoal[]>([
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background-color: var(--ion-color-primary);
+  background-color: #2563eb;
   color: white;
   font-weight: 600;
   margin-right: 12px;
 }
 
+.kpi-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 16px;
+}
+
+.status-success {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+.status-warning {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+.status-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
 .accordion-content {
   background-color: white;
+  padding: 0;
+}
+
+.kpi-details {
+  padding: 16px;
+}
+
+.kpi-progress-container {
+  margin-bottom: 16px;
+}
+
+.kpi-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.kpi-progress-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.kpi-progress-value {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.kpi-progress-bar {
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kpi-progress-fill {
+  height: 100%;
+  border-radius: 4px;
 }
 
 .kpi-description {
-  color: #374151; /* Cambiar de var(--ion-color-medium) a un color más oscuro */
+  color: #334155;
   margin-bottom: 16px;
-  font-size: 15px;
-  font-weight: 500; /* Añadir peso para mejor legibilidad */
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* Lista SMART */
+.kpi-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kpi-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.kpi-meta-item ion-icon {
+  font-size: 16px;
+}
+
+.smart-container {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.smart-container h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
 .smart-list {
   display: flex;
   flex-direction: column;
@@ -319,14 +857,14 @@ const technicalGoals = ref<SmartGoal[]>([
 
 .smart-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .smart-letter {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  min-width: 32px;
   height: 32px;
   border-radius: 8px;
   color: white;
@@ -334,40 +872,82 @@ const technicalGoals = ref<SmartGoal[]>([
   margin-right: 12px;
 }
 
-.letter-s {
-  background-color: var(--ion-color-primary);
-}
-
-.letter-m {
-  background-color: var(--ion-color-secondary);
-}
-
-.letter-a {
-  background-color: var(--ion-color-tertiary);
-}
-
-.letter-r {
-  background-color: var(--ion-color-success);
-}
-
-.letter-t {
-  background-color: var(--ion-color-warning);
-}
+.letter-s { background-color: #2563eb; }
+.letter-m { background-color: #1d4ed8; }
+.letter-a { background-color: #059669; }
+.letter-r { background-color: #047857; }
+.letter-t { background-color: #7c3aed; }
 
 .smart-content {
-  font-size: 15px;
-  color: #111827; /* Cambiar de var(--ion-color-dark) a un color más oscuro y específico */
-  font-weight: 500; /* Añadir peso para mejor legibilidad */
+  flex: 1;
 }
 
-/* Estilos para el estado expandido/colapsado */
-ion-accordion.accordion-expanding ion-item[slot='header'],
+.smart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.smart-description {
+  font-size: 13px;
+  color: #334155;
+}
+
+.kpi-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .controls-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .action-controls {
+    justify-content: flex-end;
+  }
+  
+  .kpi-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Accordion expanded state */
 ion-accordion.accordion-expanded ion-item[slot='header'] {
-  --background: rgba(var(--ion-color-primary-rgb), 0.05);
+  --background: #f8fafc;
 }
 
-ion-accordion.accordion-expanding ion-item[slot='header'] .kpi-number,
-ion-accordion.accordion-expanded ion-item[slot='header'] .kpi-number {
-  background-color: var(--ion-color-primary-shade);
+ion-accordion.accordion-expanded .kpi-number {
+  background-color: #1d4ed8;
+}
+
+/* Segment styling */
+ion-segment {
+  --background: white;
+}
+
+ion-segment-button {
+  --color: #475569;
+  --color-checked: #2563eb;
+  --indicator-color: #2563eb;
+}
+
+/* Botones con mejor contraste */
+ion-button {
+  --color: #2563eb;
+}
+
+ion-button[fill="outline"] {
+  --border-color: #2563eb;
+  --color: #2563eb;
+}
+
+/* Fondo general */
+ion-content {
+  --background: #f1f5f9;
 }
 </style>

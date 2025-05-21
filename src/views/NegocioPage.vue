@@ -37,7 +37,6 @@
             <span>+12%</span>
           </div>
         </div>
-        
         <div class="kpi-card">
           <div class="kpi-icon downloads">
             <ion-icon :icon="downloadOutline"></ion-icon>
@@ -51,7 +50,6 @@
             <span>+23%</span>
           </div>
         </div>
-        
         <div class="kpi-card">
           <div class="kpi-icon revenue">
             <ion-icon :icon="cashOutline"></ion-icon>
@@ -80,7 +78,6 @@
             </div>
             <WorldMapChart :data="mapData" />
           </div>
-          
           <div class="chart-card">
             <div class="card-header">
               <h3>Uso semanal</h3>
@@ -95,7 +92,7 @@
             />
           </div>
         </div>
-        
+
         <!-- Fila 2 -->
         <div class="chart-card full-width">
           <div class="card-header">
@@ -120,7 +117,7 @@
             color="var(--ion-color-secondary)"
           />
         </div>
-        
+
         <!-- Fila 3 -->
         <div class="chart-row">
           <div class="chart-card">
@@ -136,13 +133,14 @@
               :colors="donutColors"
             />
           </div>
-          
           <div class="chart-card">
             <div class="card-header">
-              <h3>Conversión</h3>
-              <div class="badge" :class="conversionClass">{{ conversionStatus }}</div>
+              <h3>Visión general de KPIs</h3>
+              <ion-button fill="clear" size="small">
+                <ion-icon slot="icon-only" :icon="ellipsisHorizontal"></ion-icon>
+              </ion-button>
             </div>
-            <EchartsGauge :value="conversionPct" />
+            <RadarChart :indicators="radarIndicators" :data="radarData" />
           </div>
         </div>
       </div>
@@ -151,26 +149,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref } from 'vue'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButtons, IonMenuButton, IonButton, IonIcon,
-  IonSegment, IonSegmentButton, IonLabel
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButtons,
+  IonMenuButton,
+  IonButton,
+  IonIcon,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel
 } from '@ionic/vue'
 import {
-  rocketOutline, notificationsOutline, peopleOutline,
-  downloadOutline, cashOutline, trendingUpOutline,
-  trendingDownOutline, ellipsisHorizontal
+  rocketOutline,
+  notificationsOutline,
+  peopleOutline,
+  downloadOutline,
+  cashOutline,
+  trendingUpOutline,
+  trendingDownOutline,
+  ellipsisHorizontal
 } from 'ionicons/icons'
+import { defineAsyncComponent } from 'vue'
 
-// Componentes de gráficos
 const BarChart = defineAsyncComponent(() => import('@/components/BarChart.vue'))
 const LineChart = defineAsyncComponent(() => import('@/components/LineChart.vue'))
 const DonutChart = defineAsyncComponent(() => import('@/components/DonutChart.vue'))
 const WorldMapChart = defineAsyncComponent(() => import('@/components/WorldMapChart.vue'))
-const EchartsGauge = defineAsyncComponent(() => import('@/components/GaugeChart.vue'))
+const RadarChart = defineAsyncComponent(() => import('@/components/RadarChart.vue'))
 
-// Datos para los gráficos
 const barCategories = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7']
 const barSeries = ref([{ name: 'Actividades', data: [320, 450, 390, 580, 610, 720, 800] }])
 
@@ -191,23 +202,20 @@ const mapData = ref([
   { country: 'Portugal', value: 3000 }
 ])
 
-// KPI de conversión
-const conversionPct = 32
-
-// Estado de la conversión basado en el porcentaje
-const conversionStatus = computed(() => {
-  if (conversionPct >= 60) return 'Excelente'
-  if (conversionPct >= 40) return 'Bueno'
-  if (conversionPct >= 20) return 'Regular'
-  return 'Bajo'
-})
-
-const conversionClass = computed(() => {
-  if (conversionPct >= 60) return 'success'
-  if (conversionPct >= 40) return 'warning'
-  if (conversionPct >= 20) return 'info'
-  return 'danger'
-})
+interface Indicator {
+  name: string
+  max: number
+}
+const radarIndicators = ref<Indicator[]>([
+  { name: 'Usuarios', max: 2000 },
+  { name: 'Descargas', max: 60000 },
+  { name: 'Ingresos (K€)', max: 50 },
+  { name: 'Hectáreas', max: 25 },
+  { name: 'Agricultores', max: 400 }
+])
+const radarData = ref([
+  { name: 'Actual', value: [1245, 45800, 32.5, 20, 350] }
+])
 </script>
 
 <style>
@@ -481,7 +489,6 @@ const conversionClass = computed(() => {
   .kpi-summary {
     grid-template-columns: 1fr;
   }
-  
   .chart-card {
     height: 300px;
   }

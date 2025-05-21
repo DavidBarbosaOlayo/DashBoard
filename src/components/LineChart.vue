@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import ApexChart from 'vue3-apexcharts'
 import type { ApexOptions } from 'apexcharts'
 
@@ -24,107 +24,55 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   series: () => [{ name:'Hectáreas', data:[5,12,8,15,10,18,20] }],
   categories: () => ['Ene','Feb','Mar','Abr','May','Jun','Jul'],
-  title: 'Evolución de hectáreas',
+  title: 'Evolución',
   color: '#10b981'
 })
 
 const chartSeries = ref<Serie[]>(props.series)
+
 const chartOptions = ref<ApexOptions>({
-  chart: { 
-    background: 'transparent', 
+  chart: {
+    foreColor: '#374151',
+    background: 'transparent',
     toolbar: { show: false },
     fontFamily: 'Inter, sans-serif',
-    dropShadow: {
-      enabled: true,
-      top: 10,
-      left: 0,
-      blur: 3,
-      opacity: 0.1
-    },
+    dropShadow: { enabled: true, top: 10, left: 0, blur: 3, opacity: 0.1 },
     animations: {
       enabled: true,
       easing: 'easeinout',
       speed: 800,
-      animateGradually: {
-        enabled: true,
-        delay: 150
-      },
-      dynamicAnimation: {
-        enabled: true,
-        speed: 350
-      }
+      animateGradually: { enabled: true, delay: 150 },
+      dynamicAnimation: { enabled: true, speed: 350 }
     }
   },
   colors: [props.color],
-  stroke: { 
-    curve: 'smooth', 
-    width: 3 
-  },
-  markers: { 
-    size: 5, 
+  stroke: { curve: 'smooth', width: 3 },
+  markers: {
+    size: 5,
     colors: [props.color],
-    strokeColors: '#fff', 
+    strokeColors: '#fff',
     strokeWidth: 2,
-    hover: {
-      size: 7
-    }
+    hover: { size: 7 }
   },
-  xaxis: { 
+  xaxis: {
     categories: props.categories,
-    labels: { 
-      style: { 
-        colors: '#374151',
-        fontFamily: 'Inter, sans-serif',
-        fontWeight: 500
-      }
-    },
-    axisBorder: {
-      show: false
-    },
-    axisTicks: {
-      show: false
-    }
+    labels: { style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } },
+    axisBorder: { show: false },
+    axisTicks: { show: false }
   },
-  yaxis: { 
-    labels: { 
-      style: { 
-        colors: '#374151',
-        fontFamily: 'Inter, sans-serif',
-        fontWeight: 500
-      }
-    },
-    title: { 
-      text: 'Hectáreas', 
-      style: { 
-        color: '#374151',
-        fontFamily: 'Inter, sans-serif',
-        fontWeight: 500
-      }
-    }
+  yaxis: {
+    title: { text: 'Hectáreas', style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } }
   },
-  tooltip: { 
-    theme: 'light',
-    x: {
-      show: true
-    },
-    y: {
-      title: {
-        formatter: (seriesName) => seriesName
-      }
-    },
-    marker: {
-      show: true
-    }
+  tooltip: {
+    theme: 'dark',                     // <- tooltip oscuro
+    x: { show: true },
+    y: { title: { formatter: seriesName => seriesName } },
+    marker: { show: true }
   },
-  grid: { 
+  grid: {
     borderColor: '#e5e7eb',
     strokeDashArray: 4,
-    padding: {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 10
-    }
+    padding: { top: 0, right: 0, bottom: 0, left: 10 }
   },
   fill: {
     type: 'gradient',
@@ -132,7 +80,6 @@ const chartOptions = ref<ApexOptions>({
       shade: 'light',
       type: 'vertical',
       shadeIntensity: 0.3,
-      gradientToColors: undefined,
       inverseColors: false,
       opacityFrom: 0.8,
       opacityTo: 0.2,
@@ -142,25 +89,23 @@ const chartOptions = ref<ApexOptions>({
 })
 
 watch(props, () => {
-  chartSeries.value = props.series
+  chartSeries.value = props.series!
   chartOptions.value = {
     ...chartOptions.value,
-    colors: [props.color],
-    xaxis: { ...chartOptions.value.xaxis, categories: props.categories }
+    colors: [props.color!],
+    xaxis: { ...chartOptions.value.xaxis!, categories: props.categories }
   }
 })
 
-onMounted(() => {
-  // Asegurarse de que el gráfico se renderice correctamente
-  setTimeout(() => {
-    window.dispatchEvent(new Event('resize'))
-  }, 300)
+onMounted(async () => {
+  await nextTick()
+  window.dispatchEvent(new Event('resize'))
 })
 </script>
 
 <style scoped>
-.chart-container { 
-  width: 100%; 
+.chart-container {
+  width: 100%;
   height: calc(100% - 30px);
 }
 </style>
