@@ -3,28 +3,43 @@
     <ion-split-pane content-id="main-content">
       <ion-menu content-id="main-content" type="overlay">
         <ion-content>
-          <ion-list id="inbox-list">
-            <ion-list-header>Inbox</ion-list-header>
-            <ion-note>hi@ionicframework.com</ion-note>
+          <div class="menu-header">
+            <div class="logo">
+              <ion-icon :icon="analyticsOutline" class="logo-icon"></ion-icon>
+              <span>AgriTech</span>
+            </div>
+            <ion-note>Data Visualization</ion-note>
+          </div>
 
+          <ion-list id="inbox-list" lines="none">
             <ion-menu-toggle :auto-hide="false" v-for="(p, i) in appPages" :key="i">
-              <ion-item @click="selectedIndex = i" router-direction="root" :router-link="p.url" lines="none" :detail="false" class="hydrated" :class="{ selected: selectedIndex === i }">
-                <ion-icon aria-hidden="true" slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
+              <ion-item
+                :router-link="p.url"
+                router-direction="root"
+                lines="none"
+                :detail="false"
+                :class="{ selected: selectedIndex === i }"
+                @click="selectedIndex = i"
+              >
+                <ion-icon slot="start" :icon="p.icon" />
                 <ion-label>{{ p.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </ion-list>
 
-          <ion-list id="labels-list">
-            <ion-list-header>Labels</ion-list-header>
-
-            <ion-item v-for="(label, index) in labels" lines="none" :key="index">
-              <ion-icon aria-hidden="true" slot="start" :ios="bookmarkOutline" :md="bookmarkSharp"></ion-icon>
-              <ion-label>{{ label }}</ion-label>
+          <div class="menu-footer">
+            <ion-item lines="none" button>
+              <ion-icon slot="start" :icon="settingsOutline" />
+              <ion-label>Configuración</ion-label>
             </ion-item>
-          </ion-list>
+            <ion-item lines="none" button>
+              <ion-icon slot="start" :icon="logOutOutline" />
+              <ion-label>Cerrar sesión</ion-label>
+            </ion-item>
+          </div>
         </ion-content>
       </ion-menu>
+
       <ion-router-outlet id="main-content"></ion-router-outlet>
     </ion-split-pane>
   </ion-app>
@@ -38,196 +53,204 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonListHeader,
   IonMenu,
   IonMenuToggle,
   IonNote,
   IonRouterOutlet,
-  IonSplitPane,
+  IonSplitPane
 } from '@ionic/vue';
-import { ref } from 'vue';
+
 import {
-  archiveOutline,
-  archiveSharp,
-  bookmarkOutline,
-  bookmarkSharp,
-  heartOutline,
-  heartSharp,
-  mailOutline,
-  mailSharp,
-  paperPlaneOutline,
-  paperPlaneSharp,
-  trashOutline,
-  trashSharp,
-  warningOutline,
-  warningSharp,
+  rocketOutline,
+  codeSlashOutline,
+  statsChartOutline,
+  settingsOutline,
+  logOutOutline,
+  analyticsOutline
 } from 'ionicons/icons';
 
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+
 const selectedIndex = ref(0);
+
 const appPages = [
   {
-    title: 'Inbox',
-    url: '/folder/Inbox',
-    iosIcon: mailOutline,
-    mdIcon: mailSharp,
+    title: 'Negocio',
+    url: '/negocio',
+    icon: rocketOutline
   },
   {
-    title: 'Outbox',
-    url: '/folder/Outbox',
-    iosIcon: paperPlaneOutline,
-    mdIcon: paperPlaneSharp,
+    title: 'Técnico',
+    url: '/tecnico',
+    icon: codeSlashOutline
   },
   {
-    title: 'Favorites',
-    url: '/folder/Favorites',
-    iosIcon: heartOutline,
-    mdIcon: heartSharp,
-  },
-  {
-    title: 'Archived',
-    url: '/folder/Archived',
-    iosIcon: archiveOutline,
-    mdIcon: archiveSharp,
-  },
-  {
-    title: 'Trash',
-    url: '/folder/Trash',
-    iosIcon: trashOutline,
-    mdIcon: trashSharp,
-  },
-  {
-    title: 'Spam',
-    url: '/folder/Spam',
-    iosIcon: warningOutline,
-    mdIcon: warningSharp,
-  },
+    title: 'KPIs',
+    url: '/kpis',
+    icon: statsChartOutline
+  }
 ];
-const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
 
-const path = window.location.pathname.split('folder/')[1];
-if (path !== undefined) {
-  selectedIndex.value = appPages.findIndex((page) => page.title.toLowerCase() === path.toLowerCase());
-}
+const route = useRoute();
+
+const updateSelectedIndex = () => {
+  const currentPath = route.path;
+  const index = appPages.findIndex(p => p.url === currentPath);
+  if (index !== -1) selectedIndex.value = index;
+};
+
+onMounted(updateSelectedIndex);
+watch(route, updateSelectedIndex);
 </script>
 
-<style scoped>
-ion-menu ion-content {
-  --background: var(--ion-item-background, var(--ion-background-color, #fff));
+<style>
+/* Estilos globales */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --ion-color-primary: #6366f1;
+  --ion-color-primary-rgb: 99, 102, 241;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #575ad4;
+  --ion-color-primary-tint: #7376f2;
+
+  --ion-color-secondary: #10b981;
+  --ion-color-secondary-rgb: 16, 185, 129;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #0ea371;
+  --ion-color-secondary-tint: #28c08e;
+
+  --ion-color-tertiary: #f59e0b;
+  --ion-color-tertiary-rgb: 245, 158, 11;
+  --ion-color-tertiary-contrast: #000000;
+  --ion-color-tertiary-contrast-rgb: 0, 0, 0;
+  --ion-color-tertiary-shade: #d88b0a;
+  --ion-color-tertiary-tint: #f6a823;
+
+  --ion-color-success: #10b981;
+  --ion-color-success-rgb: 16, 185, 129;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #0ea371;
+  --ion-color-success-tint: #28c08e;
+
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-tint: #f6a823;
+
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  --ion-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-ion-menu.md ion-content {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
+* {
+  box-sizing: border-box;
 }
 
-ion-menu.md ion-list {
-  padding: 20px 0;
+/* Personalización de scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-ion-menu.md ion-note {
-  margin-bottom: 30px;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-ion-menu.md ion-list-header,
-ion-menu.md ion-note {
-  padding-left: 10px;
-}
-
-ion-menu.md ion-list#inbox-list {
-  border-bottom: 1px solid var(--ion-background-color-step-150, #d7d8da);
-}
-
-ion-menu.md ion-list#inbox-list ion-list-header {
-  font-size: 22px;
-  font-weight: 600;
-
-  min-height: 20px;
-}
-
-ion-menu.md ion-list#labels-list ion-list-header {
-  font-size: 16px;
-
-  margin-bottom: 18px;
-
-  color: #757575;
-
-  min-height: 26px;
-}
-
-ion-menu.md ion-item {
-  --padding-start: 10px;
-  --padding-end: 10px;
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
   border-radius: 4px;
 }
 
-ion-menu.md ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.14);
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+</style>
+
+<style scoped>
+ion-split-pane {
+  --side-max-width: 280px;
 }
 
-ion-menu.md ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
+/* Estilos para el menú */
+ion-menu {
+  --background: #ffffff;
 }
 
-ion-menu.md ion-item ion-icon {
-  color: #616e7e;
+.menu-header {
+  padding: 24px 16px 16px;
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  color: white;
+  margin-bottom: 8px;
 }
 
-ion-menu.md ion-item ion-label {
-  font-weight: 500;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-ion-menu.ios ion-content {
-  --padding-bottom: 20px;
-}
-
-ion-menu.ios ion-list {
-  padding: 20px 0 0 0;
-}
-
-ion-menu.ios ion-note {
-  line-height: 24px;
-  margin-bottom: 20px;
-}
-
-ion-menu.ios ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --min-height: 50px;
-}
-
-ion-menu.ios ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.ios ion-item ion-icon {
+.logo-icon {
   font-size: 24px;
-  color: #73849a;
 }
 
-ion-menu.ios ion-list#labels-list ion-list-header {
-  margin-bottom: 8px;
-}
-
-ion-menu.ios ion-list-header,
-ion-menu.ios ion-note {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-ion-menu.ios ion-note {
-  margin-bottom: 8px;
+.logo span {
+  font-size: 20px;
+  font-weight: 600;
 }
 
 ion-note {
-  display: inline-block;
-  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
 
-  color: var(--ion-color-medium-shade);
+/* Estilos para los items del menú */
+ion-list {
+  padding: 8px;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 48px;
+  margin-bottom: 4px;
+  --border-radius: 8px;
+  --background-hover: rgba(var(--ion-color-primary-rgb), 0.08);
+  font-weight: 500;
 }
 
 ion-item.selected {
+  --background: rgba(var(--ion-color-primary-rgb), 0.1);
   --color: var(--ion-color-primary);
+}
+
+ion-item.selected ion-icon {
+  color: var(--ion-color-primary);
+}
+
+/* Footer del menú */
+.menu-footer {
+  padding: 8px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.menu-footer ion-item {
+  --color: var(--ion-color-medium);
 }
 </style>

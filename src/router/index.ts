@@ -4,17 +4,25 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '',
-    redirect: '/folder/Inbox'
+    redirect: '/negocio'
   },
   {
-    path: '/folder/:id',
-    component: () => import ('../views/FolderPage.vue')
+    path: '/negocio',
+    component: () => import('../views/NegocioPage.vue')
+  },
+  {
+    path: '/tecnico',
+    component: () => import('../views/TecnicoPage.vue')
+  },
+  {
+    path: '/kpis',
+    component: () => import('../views/KpiPage.vue')
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-})
+});
 
-export default router
+export default router;
