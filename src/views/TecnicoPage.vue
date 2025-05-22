@@ -70,10 +70,7 @@
                   <span>Normal</span>
                 </div>
               </div>
-              <div class="placeholder-chart">
-                <ion-icon :icon="analyticsOutline" class="placeholder-icon"></ion-icon>
-                <span>Gráfico de CPU</span>
-              </div>
+              <CpuLineChart :data="cpuData" :labels="cpuLabels" color="#6366f1" />
             </div>
           </ion-col>
           <ion-col size="12" size-lg="4.5">
@@ -85,10 +82,7 @@
                   <span>65%</span>
                 </div>
               </div>
-              <div class="placeholder-chart">
-                <ion-icon :icon="barChartOutline" class="placeholder-icon"></ion-icon>
-                <span>Gráfico de memoria</span>
-              </div>
+              <MemoryBarChart :data="memoryData" />
             </div>
           </ion-col>
           <ion-col size="12" size-lg="3">
@@ -96,10 +90,7 @@
               <div class="card-header">
                 <h3>Distribución</h3>
               </div>
-              <div class="placeholder-chart">
-                <ion-icon :icon="pieChartOutline" class="placeholder-icon"></ion-icon>
-                <span>Gráfico de distribución</span>
-              </div>
+              <DistributionPieChart :data="distributionData" title="Plataformas" />
             </div>
           </ion-col>
         </ion-row>
@@ -126,6 +117,9 @@ import {
 import SparkLine from '@/components/SparkLine.vue'
 import ApexLineRT from '@/components/ApexLineRT.vue'
 import EchartsGauge from '@/components/GaugeChart.vue'
+import CpuLineChart from '@/components/CpuChart.vue'
+import MemoryBarChart from '@/components/MemoryBarChart.vue'
+import DistributionPieChart from '@/components/DistributionPieChart.vue'
 
 // Router para navegación
 const router = useRouter()
@@ -201,14 +195,32 @@ const sparkData3 = ref({
 })
 
 // Datos para gráfico en tiempo real
-const UPDATE_MS = 1000
-const MAX_POINTS = 60
+const UPDATE_MS = 2000 // Cambiado de 1000 a 2000 para mejor rendimiento
+const MAX_POINTS = 30 // Reducido de 60 a 30 para mejor rendimiento
 let lastX = Date.now()
 const dataRT = ref<{x: number; y: number}[]>([])
 const seriesRT = ref([{ name: 'Usuarios', data: dataRT.value }])
 
 // Valor para el gauge
 const currentUsers = ref(0)
+
+// Datos para el gráfico de CPU (ChartJS)
+const cpuData = ref([28, 45, 35, 55, 40, 65, 80, 74, 68, 85, 75, 62])
+const cpuLabels = ref(['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'])
+
+// Datos para el gráfico de memoria (ApexCharts)
+const memoryData = ref([
+  { name: 'App', value: 35, color: '#6366f1' },
+  { name: 'Sistema', value: 25, color: '#10b981' },
+  { name: 'Libre', value: 40, color: '#f59e0b' }
+])
+
+// Datos para el gráfico de distribución (ECharts)
+const distributionData = ref([
+  { name: 'iOS', value: 40, itemStyle: { color: '#6366f1' } },
+  { name: 'Android', value: 35, itemStyle: { color: '#10b981' } },
+  { name: 'Web', value: 25, itemStyle: { color: '#f59e0b' } }
+])
 
 // Lógica para actualizar datos en tiempo real
 let interval: ReturnType<typeof setInterval> | undefined
@@ -280,38 +292,40 @@ onUnmounted(() => {
 /* Estilos para el contenido */
 .dashboard-content {
   --background: #f9fafb;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --padding-start: 16px;
-  --padding-end: 16px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  overflow: hidden; /* Evitar scroll */
 }
 
 ion-grid {
   height: 100%;
+  padding: 0;
 }
 
 ion-row {
-  margin-bottom: 20px;
+  margin-bottom: 10px; /* Reducido de 20px a 10px */
 }
 
 ion-col {
-  --ion-grid-column-padding: 10px;
+  --ion-grid-column-padding: 8px; /* Reducido de 10px a 8px */
 }
 
 /* Filas con alturas específicas */
 @media (min-width: 992px) {
   .ion-row-1 {
-    height: 20%;
-    max-height: 20%;
+    height: 16%;
+    max-height: 16%;
   }
   .ion-row-2 {
-    height: 40%;
-    max-height: 40%;
-    min-height: 300px; /* Añadir altura mínima */
+    height: 38%;
+    max-height: 38%;
+    min-height: 200px;
   }
   .ion-row-3 {
-    height: 40%;
-    max-height: 40%;
+    height: 46%;
+    max-height: 46%;
   }
 }
 
@@ -326,20 +340,20 @@ ion-col {
 .chart-card {
   background: white;
   border-radius: 12px;
-  padding: 16px;
+  padding: 10px; /* Reducido de 16px a 10px */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Añadir overflow hidden para evitar desplazamiento */
-  position: relative; /* Asegurar que el contenido se posicione correctamente */
+  overflow: hidden;
+  position: relative;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px; /* Reducido de 16px a 8px */
 }
 
 .card-header h3 {
@@ -382,23 +396,5 @@ ion-col {
 .badge.danger {
   background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
-}
-
-/* Placeholder para gráficos */
-.placeholder-chart {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-  background-color: rgba(243, 244, 246, 0.5);
-  border-radius: 8px;
-}
-
-.placeholder-icon {
-  font-size: 48px;
-  margin-bottom: 8px;
-  opacity: 0.5;
 }
 </style>

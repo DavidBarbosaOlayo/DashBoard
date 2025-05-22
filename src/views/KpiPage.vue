@@ -75,28 +75,19 @@
         <!-- Filtros y Controles -->
         <div class="controls-container">
           <div class="filter-controls">
-            <ion-segment v-model="activeFilter" mode="ios">
-              <ion-segment-button value="all">
+            <ion-segment v-model="activeFilter" mode="ios" class="custom-segment">
+              <ion-segment-button value="all" class="segment-button">
                 <ion-label>Todos</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="business">
+              <ion-segment-button value="business" class="segment-button">
                 <ion-label>Negocio</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="technical">
+              <ion-segment-button value="technical" class="segment-button">
                 <ion-label>Técnicos</ion-label>
               </ion-segment-button>
             </ion-segment>
           </div>
-          <div class="action-controls">
-            <ion-button fill="clear" size="small" @click="expandAll">
-              <ion-icon slot="start" :icon="expandOutline" />
-              Expandir
-            </ion-button>
-            <ion-button fill="clear" size="small" @click="collapseAll">
-              <ion-icon slot="start" :icon="contractOutline" />
-              Colapsar
-            </ion-button>
-          </div>
+          <!-- Eliminados los botones de expandir/colapsar que daban error -->
         </div>
 
         <!-- Sección de KPIs de Negocio -->
@@ -111,7 +102,7 @@
             </ion-button>
           </div>
           <div class="kpi-cards">
-            <ion-accordion-group ref="businessAccordion" expand="inset" :multiple="true">
+            <ion-accordion-group expand="inset" :multiple="true">
               <ion-accordion
                 v-for="item in businessGoals"
                 :key="item.id"
@@ -122,7 +113,7 @@
                   <ion-label>
                     <div class="accordion-title">
                       <span class="kpi-number">{{ item.id }}</span>
-                      <span>{{ item.title }}</span>
+                      <span>{{ item.kpiTitle }}</span>
                     </div>
                   </ion-label>
                   <div class="kpi-status" :class="getStatusClass(item.progress)">
@@ -131,6 +122,10 @@
                 </ion-item>
                 <div class="accordion-content" slot="content">
                   <div class="kpi-details">
+                    <div class="kpi-header">
+                      <h2 class="kpi-title">{{ item.title }}</h2>
+                    </div>
+                    
                     <div class="kpi-progress-container">
                       <div class="kpi-progress-header">
                         <h3>Progreso</h3>
@@ -176,16 +171,7 @@
                       </div>
                     </div>
                     
-                    <div class="kpi-actions">
-                      <ion-button fill="outline" size="small">
-                        <ion-icon slot="start" :icon="createOutline" />
-                        Editar
-                      </ion-button>
-                      <ion-button fill="outline" size="small">
-                        <ion-icon slot="start" :icon="analyticsOutline" />
-                        Detalles
-                      </ion-button>
-                    </div>
+                    <!-- Eliminados los botones de editar y detalles que daban error -->
                   </div>
                 </div>
               </ion-accordion>
@@ -205,7 +191,7 @@
             </ion-button>
           </div>
           <div class="kpi-cards">
-            <ion-accordion-group ref="technicalAccordion" expand="inset" :multiple="true">
+            <ion-accordion-group expand="inset" :multiple="true">
               <ion-accordion
                 v-for="item in technicalGoals"
                 :key="item.id"
@@ -216,7 +202,7 @@
                   <ion-label>
                     <div class="accordion-title">
                       <span class="kpi-number">{{ item.id }}</span>
-                      <span>{{ item.title }}</span>
+                      <span>{{ item.kpiTitle }}</span>
                     </div>
                   </ion-label>
                   <div class="kpi-status" :class="getStatusClass(item.progress)">
@@ -225,6 +211,10 @@
                 </ion-item>
                 <div class="accordion-content" slot="content">
                   <div class="kpi-details">
+                    <div class="kpi-header">
+                      <h2 class="kpi-title">{{ item.title }}</h2>
+                    </div>
+                    
                     <div class="kpi-progress-container">
                       <div class="kpi-progress-header">
                         <h3>Progreso</h3>
@@ -270,16 +260,7 @@
                       </div>
                     </div>
                     
-                    <div class="kpi-actions">
-                      <ion-button fill="outline" size="small">
-                        <ion-icon slot="start" :icon="createOutline" />
-                        Editar
-                      </ion-button>
-                      <ion-button fill="outline" size="small">
-                        <ion-icon slot="start" :icon="analyticsOutline" />
-                        Detalles
-                      </ion-button>
-                    </div>
+                    <!-- Eliminados los botones de editar y detalles que daban error -->
                   </div>
                 </div>
               </ion-accordion>
@@ -309,7 +290,7 @@ import {
   IonSegment,
   IonSegmentButton
 } from '@ionic/vue';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import {
   statsChartOutline,
   rocketOutline,
@@ -318,11 +299,7 @@ import {
   trendingUpOutline,
   calendarOutline,
   personOutline,
-  createOutline,
-  analyticsOutline,
-  addOutline,
-  expandOutline,
-  contractOutline
+  addOutline
 } from 'ionicons/icons';
 
 interface SmartElement {
@@ -333,7 +310,8 @@ interface SmartElement {
 
 interface SmartGoal {
   id: number;
-  title: string;
+  kpiTitle: string; // Título corto para el encabezado del acordeón
+  title: string; // Título completo para el contenido
   description: string;
   progress: number;
   deadline: string;
@@ -342,17 +320,12 @@ interface SmartGoal {
 }
 
 const activeFilter = ref('all');
-const businessAccordion = ref<HTMLIonAccordionGroupElement | null>(null);
-const technicalAccordion = ref<HTMLIonAccordionGroupElement | null>(null);
-
-// Valores para almacenar los estados de los acordeones
-const businessAccordionValues = ref<string[]>([]);
-const technicalAccordionValues = ref<string[]>([]);
 
 const businessGoals = ref<SmartGoal[]>([
   {
     id: 1,
-    title: 'Aumentar visitas',
+    kpiTitle: 'Visitas Web', // Título corto para el encabezado
+    title: 'Más Visitas: Aumentar tráfico web', // Título completo
     description: 'Aumentar las visitas un 50% en 30 días duplicando contenido y mejorando SEO.',
     progress: 65,
     deadline: '30 Jun 2025',
@@ -367,7 +340,8 @@ const businessGoals = ref<SmartGoal[]>([
   },
   {
     id: 2,
-    title: 'Incrementar ventas',
+    kpiTitle: 'Ventas Anuales', // Título corto para el encabezado
+    title: 'Más Ventas: Incrementar ingresos', // Título completo
     description: 'Subir un 20% las ventas en 1 año ofreciendo nuevos productos y mejorando la conversión.',
     progress: 35,
     deadline: '31 Dic 2025',
@@ -376,8 +350,8 @@ const businessGoals = ref<SmartGoal[]>([
       { letter: 'S', title: 'Específico', content: 'Aumentar ventas en un 20%' },
       { letter: 'M', title: 'Medible', content: 'De 200.000€ a 240.000€ anuales' },
       { letter: 'A', title: 'Alcanzable', content: 'Con nuevos productos y mejoras en conversión' },
-      { letter: 'R', title: 'Aprovechar base de clientes existente' },
-      { letter: 'T', title: 'En 12 meses (31 de diciembre)' }
+      { letter: 'R', title: 'Relevante', content: 'Aprovechar base de clientes existente' },
+      { letter: 'T', title: 'Temporal', content: 'En 12 meses (31 de diciembre)' }
     ]
   }
 ]);
@@ -385,7 +359,8 @@ const businessGoals = ref<SmartGoal[]>([
 const technicalGoals = ref<SmartGoal[]>([
   {
     id: 1,
-    title: 'Optimizar carga',
+    kpiTitle: 'Tiempo de Carga', // Título corto para el encabezado
+    title: 'Rendimiento: Optimizar velocidad de carga', // Título completo
     description: 'Reducir tiempo de carga de la app en un 30% antes de fin de mes mejorando imágenes y caché.',
     progress: 42,
     deadline: '31 May 2025',
@@ -400,7 +375,8 @@ const technicalGoals = ref<SmartGoal[]>([
   },
   {
     id: 2,
-    title: 'Mejorar test coverage',
+    kpiTitle: 'Cobertura Tests', // Título corto para el encabezado
+    title: 'Calidad: Mejorar cobertura de tests', // Título completo
     description: 'Cubrir 90% del código con tests antes del próximo sprint para aumentar la fiabilidad.',
     progress: 28,
     deadline: '15 Jun 2025',
@@ -414,34 +390,6 @@ const technicalGoals = ref<SmartGoal[]>([
     ]
   }
 ]);
-
-// Inicializar los valores de los acordeones cuando el componente se monta
-onMounted(() => {
-  // Inicializar los arrays con los IDs de los KPIs
-  businessAccordionValues.value = businessGoals.value.map(goal => goal.id.toString());
-  technicalAccordionValues.value = technicalGoals.value.map(goal => goal.id.toString());
-});
-
-// Funciones para expandir/colapsar acordeones
-const expandAll = () => {
-  if (businessAccordion.value) {
-    // En lugar de modificar directamente la prop 'value', usamos el método 'value' del componente
-    businessAccordion.value.value = businessAccordionValues.value;
-  }
-  if (technicalAccordion.value) {
-    technicalAccordion.value.value = technicalAccordionValues.value;
-  }
-};
-
-const collapseAll = () => {
-  if (businessAccordion.value) {
-    // Para colapsar, establecemos un array vacío en lugar de undefined
-    businessAccordion.value.value = [];
-  }
-  if (technicalAccordion.value) {
-    technicalAccordion.value.value = [];
-  }
-};
 
 // Funciones para determinar el estado del KPI
 const getStatusClass = (progress: number) => {
@@ -774,6 +722,20 @@ const getProgressFillClass = (progress: number) => {
   padding: 16px;
 }
 
+/* Título del KPI */
+.kpi-header {
+  margin-bottom: 16px;
+}
+
+.kpi-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
 .kpi-progress-container {
   margin-bottom: 16px;
 }
@@ -925,8 +887,8 @@ ion-accordion.accordion-expanded .kpi-number {
   background-color: #1d4ed8;
 }
 
-/* Segment styling */
-ion-segment {
+/* Segment styling - CORREGIDO para mostrar el texto seleccionado */
+.custom-segment {
   --background: white;
 }
 
@@ -934,6 +896,24 @@ ion-segment-button {
   --color: #475569;
   --color-checked: #2563eb;
   --indicator-color: #2563eb;
+  --background-checked: rgba(37, 99, 235, 0.1);
+  font-weight: 500;
+}
+
+/* Asegurar que el texto sea visible cuando está seleccionado */
+.segment-button {
+  opacity: 1 !important;
+}
+
+ion-segment-button.segment-button-checked {
+  color: #2563eb !important;
+  --color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+ion-segment-button.segment-button-checked ion-label {
+  opacity: 1 !important;
+  color: #2563eb !important;
 }
 
 /* Botones con mejor contraste */
@@ -950,4 +930,18 @@ ion-button[fill="outline"] {
 ion-content {
   --background: #f1f5f9;
 }
+
+ion-segment-button.segment-button-checked {
+    z-index: 0 !important;
+  }
+
+  /* 2) (Opcional) Si quieres afinar con shadow-parts y asegurarte
+        de que el fondo del indicador esté por detrás */
+  ion-segment-button::part(indicator-background) {
+    z-index: 0;
+  }
+  ion-segment-button::part(native) {
+    position: relative;
+    z-index: 1;
+  }
 </style>

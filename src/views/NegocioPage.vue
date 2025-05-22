@@ -316,24 +316,25 @@ const radarData = ref([
 /* Estilos para el contenido */
 .dashboard-content {
   --background: #f9fafb;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --padding-start: 16px;
-  --padding-end: 16px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  overflow: hidden; /* Evitar scroll */
 }
 
 /* Tarjetas de KPI */
 .kpi-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px; /* Reducido de 16px a 12px */
+  margin-bottom: 12px; /* Reducido de 20px a 12px */
 }
 
 .kpi-card {
   background: white;
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px; /* Reducido de 16px a 12px */
   display: flex;
   align-items: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -346,17 +347,17 @@ const radarData = ref([
 }
 
 .kpi-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 40px; /* Reducido de 48px a 40px */
+  height: 40px; /* Reducido de 48px a 40px */
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 16px;
+  margin-right: 12px; /* Reducido de 16px a 12px */
 }
 
 .kpi-icon ion-icon {
-  font-size: 24px;
+  font-size: 20px; /* Reducido de 24px a 20px */
   color: white;
 }
 
@@ -377,28 +378,28 @@ const radarData = ref([
 }
 
 .kpi-value {
-  font-size: 24px;
+  font-size: 20px; /* Reducido de 24px a 20px */
   font-weight: 700;
   color: var(--ion-color-dark);
   line-height: 1.2;
 }
 
 .kpi-label {
-  font-size: 14px;
+  font-size: 13px; /* Reducido de 14px a 13px */
   color: var(--ion-color-medium);
 }
 
 .kpi-trend {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px; /* Reducido de 14px a 13px */
   font-weight: 600;
-  padding: 4px 8px;
+  padding: 3px 6px; /* Reducido de 4px 8px a 3px 6px */
   border-radius: 16px;
 }
 
 .kpi-trend ion-icon {
-  margin-right: 4px;
+  margin-right: 3px; /* Reducido de 4px a 3px */
 }
 
 .kpi-trend.positive {
@@ -415,52 +416,55 @@ const radarData = ref([
 .charts-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px; /* Reducido de 20px a 12px */
+  height: calc(100% - 100px); /* Ajustar altura para evitar scroll */
 }
 
 .chart-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  gap: 12px; /* Reducido de 20px a 12px */
+  flex: 1;
 }
 
 .chart-card {
   background: white;
   border-radius: 12px;
-  padding: 16px;
+  padding: 10px; /* Reducido de 16px a 10px */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  height: 350px;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chart-card.full-width {
   grid-column: 1 / -1;
-  height: 300px;
+  height: 25%; /* Ajustado para evitar scroll */
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px; /* Reducido de 16px a 8px */
 }
 
 .card-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px; /* Reducido de 16px a 15px */
   font-weight: 600;
   color: var(--ion-color-dark);
 }
 
 .time-selector {
-  max-width: 300px;
+  max-width: 280px; /* Reducido de 300px a 280px */
 }
 
 .badge {
-  padding: 4px 8px;
+  padding: 3px 6px; /* Reducido de 4px 8px a 3px 6px */
   border-radius: 16px;
-  font-size: 12px;
+  font-size: 11px; /* Reducido de 12px a 11px */
   font-weight: 600;
 }
 
@@ -490,7 +494,7 @@ const radarData = ref([
     grid-template-columns: 1fr;
   }
   .chart-card {
-    height: 300px;
+    height: 250px; /* Reducido de 300px a 250px */
   }
 }
 </style>
