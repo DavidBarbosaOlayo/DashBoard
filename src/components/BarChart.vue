@@ -16,16 +16,23 @@ import type { ApexOptions } from 'apexcharts'
 
 interface Serie { name: string; data: number[] }
 interface Props {
-  series?: Serie[]
-  categories?: string[]
-  title?: string
-  color?: string
+  series: Serie[]
+  categories: string[]
+  title: string
+  color: string
+  /** Texto del eje Y, p.ej. "Usuarios" */
+  yAxisTitle: string
+  /** Unidad para formatear etiquetas, p.ej. " usuarios" */
+  unit?: string
 }
+
 const props = withDefaults(defineProps<Props>(), {
-  series: () => [{ name: 'Actividades', data: [320,450,390,580,610,720,800] }],
-  categories: () => ['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6','Sem 7'],
-  title: 'Uso semanal',
-  color: '#6366f1'
+  series:    () => [{ name: 'Actividades', data: [320,450,390,580,610,720,800] }],
+  categories:() => ['01–07 Mar','08–14 Mar','15–21 Mar','22–28 Mar','29 Mar–04 Abr','05–11 Abr','12–18 Abr'],
+  title:     'Uso semanal',
+  color:     '#6366f1',
+  yAxisTitle:'Usuarios',
+  unit:      ' usuarios'
 })
 
 const chartSeries = ref<Serie[]>(props.series)
@@ -53,7 +60,11 @@ const chartOptions = ref<ApexOptions>({
   plotOptions: {
     bar: { borderRadius: 6, columnWidth: '60%' }
   },
-  dataLabels: { enabled: false },
+  dataLabels: {
+    enabled: true,
+    formatter: (val: number) => val.toFixed(0),
+    style: { fontSize: '12px', colors: ['#374151'] }
+  },
   xaxis: {
     categories: props.categories,
     labels: { style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } },
@@ -61,10 +72,11 @@ const chartOptions = ref<ApexOptions>({
     axisTicks: { show: false }
   },
   yaxis: {
-    labels: { formatter: yFormatter },
+    title: { text: props.yAxisTitle, style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } },
+    labels: { formatter: yFormatter }
   },
   tooltip: {
-    theme: 'dark',                     // <- tooltip oscuro
+    theme: 'dark',
     x: { show: true },
     y: { title: { formatter: seriesName => seriesName } }
   },
@@ -92,11 +104,12 @@ const chartOptions = ref<ApexOptions>({
 })
 
 watch(props, () => {
-  chartSeries.value = props.series!
+  chartSeries.value = props.series
   chartOptions.value = {
     ...chartOptions.value,
-    colors: [props.color!],
-    xaxis: { ...chartOptions.value.xaxis!, categories: props.categories }
+    colors: [props.color],
+    xaxis:   { ...chartOptions.value.xaxis!, categories: props.categories },
+    yaxis:   { ...chartOptions.value.yaxis!, title: { text: props.yAxisTitle } }
   }
 })
 
