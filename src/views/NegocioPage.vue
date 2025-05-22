@@ -29,7 +29,7 @@
             <ion-icon :icon="peopleOutline"></ion-icon>
           </div>
           <div class="kpi-data">
-            <div class="kpi-value">1,245</div>
+            <div class="kpi-value">28.2K</div>
             <div class="kpi-label">Usuarios</div>
           </div>
           <div class="kpi-trend positive">
@@ -55,7 +55,7 @@
             <ion-icon :icon="cashOutline"></ion-icon>
           </div>
           <div class="kpi-data">
-            <div class="kpi-value">€32.5K</div>
+            <div class="kpi-value">€132.5K</div>
             <div class="kpi-label">Ingresos</div>
           </div>
           <div class="kpi-trend negative">
@@ -80,7 +80,7 @@
           </div>
           <div class="chart-card">
             <div class="card-header">
-              <h3>Uso semanal</h3>
+              <h3>Tareas semanales registradas</h3>
               <ion-button fill="clear" size="small">
                 <ion-icon slot="icon-only" :icon="ellipsisHorizontal"></ion-icon>
               </ion-button>
@@ -96,7 +96,7 @@
         <!-- Fila 2 -->
         <div class="chart-card full-width">
           <div class="card-header">
-            <h3>Evolución de hectáreas</h3>
+            <h3>Evolución nº recintos</h3>
             <div class="time-selector">
               <ion-segment value="month" mode="ios">
                 <ion-segment-button value="week">
@@ -122,7 +122,7 @@
         <div class="chart-row">
           <div class="chart-card">
             <div class="card-header">
-              <h3>Agricultores activos</h3>
+              <h3>Actividades por paises</h3>
               <ion-button fill="clear" size="small">
                 <ion-icon slot="icon-only" :icon="ellipsisHorizontal"></ion-icon>
               </ion-button>
@@ -147,9 +147,21 @@
     </ion-content>
   </ion-page>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
+import { defineAsyncComponent } from 'vue'
+
+import {
+  rocketOutline,
+  notificationsOutline,
+  peopleOutline,
+  downloadOutline,
+  cashOutline,
+  trendingUpOutline,
+  trendingDownOutline,
+  ellipsisHorizontal
+} from 'ionicons/icons'
+
 import {
   IonPage,
   IonHeader,
@@ -164,17 +176,6 @@ import {
   IonSegmentButton,
   IonLabel
 } from '@ionic/vue'
-import {
-  rocketOutline,
-  notificationsOutline,
-  peopleOutline,
-  downloadOutline,
-  cashOutline,
-  trendingUpOutline,
-  trendingDownOutline,
-  ellipsisHorizontal
-} from 'ionicons/icons'
-import { defineAsyncComponent } from 'vue'
 
 const BarChart = defineAsyncComponent(() => import('@/components/BarChart.vue'))
 const LineChart = defineAsyncComponent(() => import('@/components/LineChart.vue'))
@@ -182,40 +183,75 @@ const DonutChart = defineAsyncComponent(() => import('@/components/DonutChart.vu
 const WorldMapChart = defineAsyncComponent(() => import('@/components/WorldMapChart.vue'))
 const RadarChart = defineAsyncComponent(() => import('@/components/RadarChart.vue'))
 
-const barCategories = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7']
-const barSeries = ref([{ name: 'Actividades', data: [320, 450, 390, 580, 610, 720, 800] }])
+// --- Datos para barra ---
+const barCategories = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May'];
+const barSeries = ref([
+  {
+    name: 'Tareas registradas',
+    data: [14100, 15682, 26490, 28485, 29132, 30874, 29950]
+  }
+])
 
-const lineCategories = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul']
-const lineSeries = ref([{ name: 'Hectáreas', data: [5, 12, 8, 15, 10, 18, 20] }])
+// --- Datos para línea (Evolución de hectáreas gestionadas) ---
+// --- Datos para línea (Recintos activos) ---
+const lineCategories = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May']
+const lineSeries = ref([
+  {
+    name: 'Recintos activos',
+    data: [513, 1055, 1483, 2006, 2265, 1970, 2375]  // valores enteros mes a mes
+  }
+])
 
+
+// --- Datos para donut ---
 const donutLabels = ['España', 'Francia', 'Italia', 'Alemania', 'Portugal']
 const donutValues = [350, 200, 100, 80, 70]
 const donutColors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
-const mapData = ref([
-  { country: 'Spain', value: 16000 },
-  { country: 'Germany', value: 15000 },
-  { country: 'France', value: 12000 },
-  { country: 'Italy', value: 9000 },
-  { country: 'Netherlands', value: 8000 },
-  { country: 'Poland', value: 7500 },
-  { country: 'Portugal', value: 3000 }
-])
-
+// --- Datos para radar (Visión general de KPIs) ---
 interface Indicator {
   name: string
   max: number
 }
+
 const radarIndicators = ref<Indicator[]>([
-  { name: 'Usuarios', max: 2000 },
-  { name: 'Descargas', max: 60000 },
-  { name: 'Ingresos (K€)', max: 50 },
-  { name: 'Hectáreas', max: 25 },
-  { name: 'Agricultores', max: 400 }
+  { name: 'Usuarios nuevos', max: 100 },
+  { name: 'Descargas', max: 100 },
+  { name: 'Recintos activos', max: 100 },
+  { name: 'Tareas completadas', max: 100 },
+  { name: 'Cobertura geográfica', max: 100 }
 ])
+
 const radarData = ref([
-  { name: 'Actual', value: [1245, 45800, 32.5, 20, 350] }
+  {
+    name: 'Uso actual',
+    value: [85, 90, 75, 80, 70] // valores escalados con sentido de negocio
+  }
 ])
+
+
+
+// --- Datos aleatorios para el mapa ---
+const countries = [
+  'Spain',
+  'Germany',
+  'France',
+  'Italy',
+  'Netherlands',
+  'Poland',
+  'Portugal'
+]
+
+function getRandomInt(max: number): number {
+  return Math.floor(Math.random() * (max + 1))
+}
+
+const mapData = ref(
+  countries.map(country => ({
+    country,
+    value: getRandomInt(12000)
+  }))
+)
 </script>
 
 <style>

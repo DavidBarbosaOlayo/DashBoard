@@ -29,10 +29,9 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   series:    () => [{ name: 'Actividades', data: [320,450,390,580,610,720,800] }],
   categories:() => ['01–07 Mar','08–14 Mar','15–21 Mar','22–28 Mar','29 Mar–04 Abr','05–11 Abr','12–18 Abr'],
-  title:     'Uso semanal',
+  title:     'Actividades',
   color:     '#6366f1',
-  yAxisTitle:'Usuarios',
-  unit:      ' usuarios'
+  unit:      ' actividades'
 })
 
 const chartSeries = ref<Serie[]>(props.series)
@@ -63,7 +62,17 @@ const chartOptions = ref<ApexOptions>({
   dataLabels: {
     enabled: true,
     formatter: (val: number) => val.toFixed(0),
-    style: { fontSize: '12px', colors: ['#374151'] }
+       style: {
+     fontSize: '12px',
+    colors: ['#ffffff']    // texto en blanco
+   },
+   dropShadow: {            // opcional: sombra para mejorar contraste
+     enabled: true,
+     top: 1,
+     left: 1,
+     blur: 1,
+     color: 'rgba(0,0,0,0.3)'
+   }
   },
   xaxis: {
     categories: props.categories,

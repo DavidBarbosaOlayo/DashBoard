@@ -22,7 +22,7 @@ interface Props {
   color?: string
 }
 const props = withDefaults(defineProps<Props>(), {
-  series: () => [{ name:'Hectáreas', data:[5,12,8,15,10,18,20] }],
+  series: () => [{ name:'Recintos Activos', data:[5,12,8,15,10,18,20] }],
   categories: () => ['Ene','Feb','Mar','Abr','May','Jun','Jul'],
   title: 'Evolución',
   color: '#10b981'
@@ -61,7 +61,7 @@ const chartOptions = ref<ApexOptions>({
     axisTicks: { show: false }
   },
   yaxis: {
-    title: { text: 'Hectáreas', style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } }
+    title: { style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } }
   },
   tooltip: {
     theme: 'dark',                     // <- tooltip oscuro

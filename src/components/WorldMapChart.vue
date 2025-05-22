@@ -17,20 +17,48 @@ import { MapChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 import europeGeoJSON from '@/assets/europe.geo.json'
 
-echarts.use([TitleComponent, TooltipComponent, VisualMapComponent, LegendComponent, MapChart, CanvasRenderer])
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  VisualMapComponent,
+  LegendComponent,
+  MapChart,
+  CanvasRenderer
+])
 
-interface Point { country: string; value: number }
+interface Point {
+  country: string
+  value: number
+}
 
-const props = withDefaults(defineProps<{ data?: Point[]; title?: string }>(), {
-  data: () => [],
-  title: 'Descargas UE'
-})
+const props = withDefaults(
+  defineProps<{
+    data?: Point[]
+    title?: string
+  }>(),
+  {
+    // Datos por defecto con valores aleatorios entre 0 y 12.000
+    data: () => [
+      { country: 'Spain', value: Math.floor(Math.random() * 12001) },
+      { country: 'Germany', value: Math.floor(Math.random() * 12001) },
+      { country: 'France', value: Math.floor(Math.random() * 12001) },
+      { country: 'Italy', value: Math.floor(Math.random() * 12001) },
+      { country: 'Netherlands', value: Math.floor(Math.random() * 12001) },
+      { country: 'Poland', value: Math.floor(Math.random() * 12001) },
+      { country: 'Portugal', value: Math.floor(Math.random() * 12001) }
+    ],
+    title: 'Descargas UE'
+  }
+)
 
-const chartContainer = ref<HTMLElement|null>(null)
+const chartContainer = ref<HTMLElement | null>(null)
 let chartInstance: echarts.ECharts | null = null
 
 function prepareEChartsData() {
-  return props.data!.map(item => ({ name: item.country, value: item.value }))
+  return props.data!.map(item => ({
+    name: item.country,
+    value: item.value
+  }))
 }
 
 function initChart() {
@@ -38,31 +66,62 @@ function initChart() {
   echarts.registerMap('europe', europeGeoJSON as any)
   chartInstance = echarts.init(chartContainer.value)
   chartInstance.setOption({
-    tooltip: { trigger: 'item', formatter: '{b}: {c}', backgroundColor: 'rgba(0,0,0,0.75)', textStyle: { color: '#fff' } },
+    title: {
+      text: props.title,
+      left: 'center',
+      textStyle: { color: '#333' }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c}',
+      backgroundColor: 'rgba(0,0,0,0.75)',
+      textStyle: { color: '#fff' }
+    },
     visualMap: {
       left: 'right',
       min: 0,
       max: Math.max(...props.data!.map(d => d.value)),
-      text: ['Alto','Bajo'],
+      text: ['Alto', 'Bajo'],
       calculable: true,
-      inRange: { color: ['#e0f2fe','#0ea5e9','#0369a1'] },
+      inRange: {
+        color: ['#e0f2fe', '#0ea5e9', '#0369a1']
+      },
       textStyle: { color: '#374151' }
     },
-    series: [{
-      name: props.title,
-      type: 'map',
-      map: 'europe',
-      roam: true,
-      emphasis: { label: { show: true, color: '#fff' }, itemStyle: { areaColor: '#0284c7' } },
-      itemStyle: { areaColor: '#f1f5f9', borderColor: '#fff', borderWidth: 1 },
-      data: prepareEChartsData(),
-      nameMap: { Spain: 'Spain', Germany: 'Germany', France: 'France', Italy: 'Italy', Netherlands: 'Netherlands', Poland: 'Poland', Portugal: 'Portugal' }
-    }]
+    series: [
+      {
+        name: props.title,
+        type: 'map',
+        map: 'europe',
+        roam: true,
+        emphasis: {
+          label: { show: true, color: '#fff' },
+          itemStyle: { areaColor: '#0284c7' }
+        },
+        itemStyle: {
+          areaColor: '#f1f5f9',
+          borderColor: '#fff',
+          borderWidth: 1
+        },
+        data: prepareEChartsData(),
+        nameMap: {
+          Spain: 'Spain',
+          Germany: 'Germany',
+          France: 'France',
+          Italy: 'Italy',
+          Netherlands: 'Netherlands',
+          Poland: 'Poland',
+          Portugal: 'Portugal'
+        }
+      }
+    ]
   })
 }
 
 function handleResize() {
-  if (chartInstance) chartInstance.resize()
+  if (chartInstance) {
+    chartInstance.resize()
+  }
 }
 
 onMounted(async () => {
@@ -73,14 +132,29 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  if (chartInstance) chartInstance.dispose()
+  if (chartInstance) {
+    chartInstance.dispose()
+  }
 })
 
-watch(() => props.data, () => {
-  if (chartInstance) {
-    chartInstance.setOption({ visualMap: { max: Math.max(...props.data!.map(d => d.value)) }, series: [{ data: prepareEChartsData() }] })
-  }
-}, { deep: true })
+watch(
+  () => props.data,
+  () => {
+    if (chartInstance) {
+      chartInstance.setOption({
+        visualMap: {
+          max: Math.max(...props.data!.map(d => d.value))
+        },
+        series: [
+          {
+            data: prepareEChartsData()
+          }
+        ]
+      })
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
