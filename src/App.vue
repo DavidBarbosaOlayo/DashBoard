@@ -6,7 +6,7 @@
           <div class="menu-header">
             <div class="logo">
               <ion-icon :icon="analyticsOutline" class="logo-icon"></ion-icon>
-              <span>AgriTech</span>
+              <span>Agricolum</span>
             </div>
             <ion-note>Data Visualization</ion-note>
           </div>
