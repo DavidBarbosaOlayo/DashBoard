@@ -12,11 +12,6 @@
             <span>Negocio</span>
           </div>
         </ion-title>
-        <ion-buttons slot="end">
-          <ion-button>
-            <ion-icon slot="icon-only" :icon="notificationsOutline" color="light" />
-          </ion-button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 

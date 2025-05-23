@@ -26,17 +26,6 @@
               </ion-item>
             </ion-menu-toggle>
           </ion-list>
-
-          <div class="menu-footer">
-            <ion-item lines="none" button>
-              <ion-icon slot="start" :icon="settingsOutline" />
-              <ion-label>Configuración</ion-label>
-            </ion-item>
-            <ion-item lines="none" button>
-              <ion-icon slot="start" :icon="logOutOutline" />
-              <ion-label>Cerrar sesión</ion-label>
-            </ion-item>
-          </div>
         </ion-content>
       </ion-menu>
 

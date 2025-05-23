@@ -12,11 +12,6 @@
             <span>Técnico</span>
           </div>
         </ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="navigateToKpis">
-            <ion-icon slot="icon-only" :icon="statsChartOutline" color="light"></ion-icon>
-          </ion-button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
