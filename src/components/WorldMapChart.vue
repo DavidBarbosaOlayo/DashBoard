@@ -37,7 +37,6 @@ const props = withDefaults(
     title?: string
   }>(),
   {
-    // Datos por defecto con valores aleatorios entre 0 y 12.000
     data: () => [
       { country: 'Spain', value: Math.floor(Math.random() * 12001) },
       { country: 'Germany', value: Math.floor(Math.random() * 12001) },
@@ -69,7 +68,19 @@ function initChart() {
     title: {
       text: props.title,
       left: 'center',
-      textStyle: { color: '#333' }
+      textStyle: {
+        color: '#fff',    // <-- Título en blanco
+        fontSize: 16
+      }
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      top: 'middle',
+      data: [props.title!],
+      textStyle: {
+        color: '#fff'     // <-- Leyenda en blanco
+      }
     },
     tooltip: {
       trigger: 'item',
@@ -86,7 +97,7 @@ function initChart() {
       inRange: {
         color: ['#e0f2fe', '#0ea5e9', '#0369a1']
       },
-      textStyle: { color: '#374151' }
+      textStyle: { color: '#fff' }  // opcional: texto de VisualMap en blanco
     },
     series: [
       {

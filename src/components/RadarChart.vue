@@ -32,7 +32,9 @@
   const option = ref({
     tooltip: {},
     legend: {
-      data: props.data.map(d => d.name)
+      data: props.data.map(d => d.name),
+      textStyle: {
+           color: '#fff' }
     },
     radar: {
       shape: 'circle',

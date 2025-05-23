@@ -21,7 +21,7 @@
     </ion-header>
 
     <!-- Deshabilitamos scroll horizontal y vertical -->
-    <ion-content class="dashboard-content" :scrollY="false" :scrollX="false">
+    <ion-content class="dashboard-content">
       <ion-grid>
         <!-- Fila 1 - KPIs mini-card (SparkLine) -->
         <ion-row class="ion-row-1">
@@ -55,7 +55,7 @@
                   <span>En vivo</span>
                 </div>
               </div>
-              <ApexLineRT :series="seriesLoad" title="Uso CPU (%)" :kpi-target="75" color="#6366f1" />
+              <ApexLineRT :series="seriesLoad" title="Uso CPU (%)" :kpi-target="75" color="#3b82f6" />
             </div>
           </ion-col>
         </ion-row>
@@ -290,16 +290,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:root {
-  --ion-color-bg-light: #f3f4f6;
-  --ion-color-bg-dark:  #e5e7eb;
-}
-
-/* Estilos para el header */
+/* Header */
 .custom-toolbar {
-  --background: #6B7280;
-  --color: white;
+  --background: linear-gradient(135deg, #1e293b, #0f172a);
+  --color: #f8fafc;
   padding: 5px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .header-title {
@@ -314,9 +310,9 @@ onMounted(() => {
   font-size: 20px;
 }
 
-/* Estilos para el contenido sin scrollbars */
+/* Contenido principal */
 .dashboard-content {
-  --background: var(--ion-color-bg-dark);
+  --background: #0f172a;
   --padding-top: 8px;
   --padding-bottom: 8px;
   --padding-start: 8px;
@@ -361,12 +357,13 @@ ion-col {
   }
 }
 
-/* Tarjetas de gráficos con fondo gris claro */
+/* Tarjetas de gráficos con tema oscuro */
 .chart-card {
-  background: var(--ion-color-bg-light);
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -374,25 +371,36 @@ ion-col {
   position: relative;
 }
 
+.chart-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  z-index: -1;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .card-header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: var(--ion-color-dark);
+  color: #f1f5f9;
 }
 
-/* Badges */
+/* Badges con tema oscuro */
 .badge {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 600;
@@ -404,22 +412,83 @@ ion-col {
 }
 
 .badge.success {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .badge.warning {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .badge.info {
-  background-color: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
 }
 
 .badge.danger {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+/* Estilos globales para gráficos - Textos claros */
+.chart-card ::v-deep .apexcharts-text {
+  fill: #e2e8f0 !important;
+}
+
+.chart-card ::v-deep .apexcharts-xaxis-label,
+.chart-card ::v-deep .apexcharts-yaxis-label {
+  fill: #cbd5e1 !important;
+}
+
+.chart-card ::v-deep .apexcharts-gridline {
+  stroke: rgba(255, 255, 255, 0.1) !important;
+}
+
+.chart-card ::v-deep .apexcharts-legend-text {
+  color: #e2e8f0 !important;
+}
+
+.chart-card ::v-deep .apexcharts-tooltip {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+}
+
+/* ECharts - Textos claros */
+.chart-card ::v-deep .echarts-tooltip {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+}
+
+.chart-card ::v-deep text {
+  fill: #cbd5e1 !important;
+}
+
+.chart-card ::v-deep .echarts-legend text {
+  fill: #e2e8f0 !important;
+}
+
+/* Gauge específico */
+.chart-card ::v-deep .gauge-text {
+  fill: #f1f5f9 !important;
+}
+
+.chart-card ::v-deep .gauge-value {
+  fill: #3b82f6 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chart-card {
+    height: 250px;
+  }
 }
 </style>
