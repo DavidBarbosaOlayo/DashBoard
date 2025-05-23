@@ -8,7 +8,7 @@
         <ion-title class="ion-text-center">
           <div class="header-title">
             <ion-icon :icon="statsChartOutline" class="header-icon" />
-            <span>Dashboard de KPIs</span>
+            <span>KPIs</span>
           </div>
         </ion-title>
         <ion-buttons slot="end">
@@ -29,7 +29,7 @@
           </div>
           <div class="kpi-summary-content">
             <div class="kpi-summary-title">KPIs de Negocio</div>
-            <div class="kpi-summary-value">2/2 activos</div>
+            <div class="kpi-summary-value">4/5 activos</div>
           </div>
           <div class="kpi-summary-progress">
             <div class="progress-bar">
@@ -45,7 +45,7 @@
           </div>
           <div class="kpi-summary-content">
             <div class="kpi-summary-title">KPIs Técnicos</div>
-            <div class="kpi-summary-value">2/2 activos</div>
+            <div class="kpi-summary-value">5/5 activos</div>
           </div>
           <div class="kpi-summary-progress">
             <div class="progress-bar">
@@ -61,7 +61,7 @@
           </div>
           <div class="kpi-summary-content">
             <div class="kpi-summary-title">Progreso General</div>
-            <div class="kpi-summary-value">4/4 activos</div>
+            <div class="kpi-summary-value">9/10 activos</div>
           </div>
           <div class="kpi-summary-progress">
             <div class="progress-bar">
@@ -336,17 +336,17 @@ const businessGoals = ref<SmartGoal[]>([
   },
   {
     id: 3,
-    kpiTitle: 'Conversión',
-    title: 'Mejorar tasa de conversión',
-    description: 'Aumentar porcentaje de visitantes que compran.',
+    kpiTitle: 'Activación de usuario',
+    title: 'Mejorar tasa de activación',
+    description: 'Incrementar el porcentaje de nuevos usuarios que completan el onboarding.',
     progress: 30,
     deadline: '15 Jun 2025',
     owner: 'María Pérez',
     smart: [
-      { letter: 'S', title: 'Específico', content: 'Incrementar ratio de conversión' },
-      { letter: 'M', title: 'Medible', content: 'De 2% a 3%' },
-      { letter: 'A', title: 'Alcanzable', content: 'Optimizando checkout y CTA' },
-      { letter: 'R', title: 'Relevante', content: 'Maximizar ingresos' },
+      { letter: 'S', title: 'Específico', content: 'Usuarios que completan el onboarding' },
+      { letter: 'M', title: 'Medible', content: 'De 40% a 60%' },
+      { letter: 'A', title: 'Alcanzable', content: 'Añadiendo tutoriales guiados y tips in-app' },
+      { letter: 'R', title: 'Relevante', content: 'Mejorar engagement y retención a largo plazo' },
       { letter: 'T', title: 'Temporal', content: 'En 45 días (15/06/2025)' }
     ]
   },
@@ -355,7 +355,7 @@ const businessGoals = ref<SmartGoal[]>([
     kpiTitle: 'Retención',
     title: 'Aumentar retención de usuarios',
     description: 'Reducir churn mensual de la plataforma.',
-    progress: 50,
+    progress: 0,
     deadline: '31 Ago 2025',
     owner: 'Carlos Ruiz',
     smart: [
@@ -475,6 +475,7 @@ const getStatusClass = (progress: number) => {
 };
 
 const getStatusText = (progress: number) => {
+  if (progress <= 0 ) return 'No iniciado';
   if (progress < 30) return 'En riesgo';
   if (progress < 70) return 'En progreso';
   return 'En objetivo';
@@ -516,12 +517,12 @@ const getProgressFillClass = (progress: number) => {
   --color-gray-900: #111827;
 }
 
-/* Header */
 .custom-toolbar {
-  --background: #1e293b;
+  --background: #6B7280; /* mismo azul que Negocio */
   --color: #ffffff;
   padding: 5px 0;
 }
+
 .header-title {
   display: flex;
   align-items: center;

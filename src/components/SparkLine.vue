@@ -5,7 +5,7 @@
       <span>{{ title }}</span>
     </div>
     <div class="value">{{ value }}</div>
-    <apex-chart type="area" height="60" :options="chartOptions" :series="chartSeries" />
+    <apex-chart :type="chartOptions.chart.type || 'area'" :height="chartOptions.chart.height || 60" :options="chartOptions" :series="chartSeries" />
   </div>
 </template>
 
@@ -17,25 +17,26 @@ import {
   navigateOutline, 
   eyeOutline, 
   peopleOutline,
-  analyticsOutline
+  analyticsOutline,
+  bugOutline
 } from 'ionicons/icons'
 
 const props = defineProps<{
   title: string
   value: string
   iconName: string
-  bgColor: string        /* gradient-blue / -pink / -orange */
+  bgColor: string        /* gradient-blue / gradient-pink / gradient-orange / gradient-green */
   chartOptions: any
   chartSeries: any
 }>()
 
-// Función para obtener el icono correcto de Ionicons
 const getIcon = () => {
   switch (props.iconName) {
     case 'navigate-outline': return navigateOutline
-    case 'eye-outline': return eyeOutline
-    case 'people-outline': return peopleOutline
-    default: return analyticsOutline
+    case 'eye-outline':      return eyeOutline
+    case 'people-outline':   return peopleOutline
+    case 'bug-outline':      return bugOutline
+    default:                 return analyticsOutline
   }
 }
 </script>
@@ -85,6 +86,10 @@ const getIcon = () => {
 
 .gradient-orange {
   background: linear-gradient(135deg, #f97316, #c2410c);
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #047857, #10b981);
 }
 
 /* Overlay para mejorar la legibilidad del gráfico */

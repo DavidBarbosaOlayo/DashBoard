@@ -8,7 +8,7 @@
               <ion-icon :icon="analyticsOutline" class="logo-icon"></ion-icon>
               <span>Agricolum</span>
             </div>
-            <ion-note>Data Visualization</ion-note>
+            <ion-note>Dashboard</ion-note>
           </div>
 
           <ion-list id="inbox-list" lines="none">
@@ -141,7 +141,7 @@ watch(route, updateSelectedIndex);
   --ion-color-warning-rgb: 245, 158, 11;
   --ion-color-warning-contrast: #000000;
   --ion-color-warning-contrast-rgb: 0, 0, 0;
-  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-shade: #d97706;
   --ion-color-warning-tint: #f6a823;
 
   --ion-color-danger: #ef4444;
@@ -150,6 +150,11 @@ watch(route, updateSelectedIndex);
   --ion-color-danger-contrast-rgb: 255, 255, 255;
   --ion-color-danger-shade: #d23c3c;
   --ion-color-danger-tint: #f15757;
+
+  /* Grises de negocio */
+  --color-business-gray: #6B7280;       /* para iconos, textos activos */
+  --color-business-gray-dark: #4B5563;  /* para fondo del menú */
+  --color-business-gray-light: #9CA3AF; /* para hover o estados suaves */
 
   --ion-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
@@ -183,41 +188,26 @@ ion-split-pane {
   --side-max-width: 280px;
 }
 
-/* Estilos para el menú */
+/* 1) Fondo de la barra lateral */
 ion-menu {
-  --background: #ffffff;
+  --background: var(--color-business-gray-dark);
 }
 
+/* 2) Cabecera del menú */
 .menu-header {
   padding: 24px 16px 16px;
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  background: var(--color-business-gray);
   color: white;
   margin-bottom: 8px;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.logo-icon {
-  font-size: 24px;
-}
-
+/* 3) Icono y texto del logo */
+.logo-icon,
 .logo span {
-  font-size: 20px;
-  font-weight: 600;
+  color: white;
 }
 
-ion-note {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-/* Estilos para los items del menú */
+/* 4) Color de los items del menú */
 ion-list {
   padding: 8px;
 }
@@ -228,29 +218,36 @@ ion-item {
   --min-height: 48px;
   margin-bottom: 4px;
   --border-radius: 8px;
-  --background-hover: rgba(var(--ion-color-primary-rgb), 0.08);
+  --background: transparent;
+  --color: var(--color-business-gray);
+  --background-hover: var(--color-business-gray-light);
   font-weight: 500;
 }
 
+ion-item ion-icon {
+  color: inherit;
+}
+
+/* 5) Item seleccionado */
 ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.1);
-  --color: var(--ion-color-primary);
+  --background: rgba(107, 114, 128, 0.2);
+  --color: white;
 }
 
 ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
+  color: white;
 }
 
-/* Footer del menú */
+/* 6) Footer del menú */
 .menu-footer {
   padding: 8px;
   position: absolute;
   bottom: 0;
   width: 100%;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .menu-footer ion-item {
-  --color: var(--ion-color-medium);
+  --color: var(--color-business-gray-light);
 }
 </style>

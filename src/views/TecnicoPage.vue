@@ -20,7 +20,8 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content class="dashboard-content">
+    <!-- Deshabilitamos scroll horizontal y vertical -->
+    <ion-content class="dashboard-content" :scrollY="false" :scrollX="false">
       <ion-grid>
         <!-- Fila 1 - KPIs mini-card (SparkLine) -->
         <ion-row class="ion-row-1">
@@ -35,51 +36,58 @@
           </ion-col>
         </ion-row>
 
-        <!-- Fila 2 - Realtime usuarios + gauge -->
+        <!-- Fila 2 - Uso de CPU en tiempo real + gauge -->
         <ion-row class="ion-row-2">
           <ion-col size="12" size-md="3" push-md="9">
             <div class="chart-card">
               <div class="card-header">
-                <h3>Usuarios online</h3>
+                <h3>Uso de CPU</h3>
               </div>
-              <EchartsGauge :value="currentUsers" title="Usuarios" />
+              <EchartsGauge :value="currentCpu" title="CPU (%)" />
             </div>
           </ion-col>
           <ion-col size="12" size-md="9" pull-md="3">
             <div class="chart-card">
               <div class="card-header">
-                <h3>Actividad en tiempo real</h3>
+                <h3>Actividad CPU en tiempo real</h3>
                 <div class="badge info">
                   <ion-icon :icon="pulseOutline"></ion-icon>
                   <span>En vivo</span>
                 </div>
               </div>
-              <ApexLineRT :series="seriesRT" title="Usuarios online" :kpi-target="70" color="#6366f1" />
+              <ApexLineRT :series="seriesLoad" title="Uso CPU (%)" :kpi-target="75" color="#6366f1" />
             </div>
           </ion-col>
         </ion-row>
 
         <!-- Fila 3 - Métricas sistema -->
         <ion-row class="ion-row-3">
+          <!-- Temperatura CPU -->
           <ion-col size="12" size-lg="4.5">
             <div class="chart-card">
               <div class="card-header">
-                <h3>Carga CPU</h3>
-                <div class="badge success">
+                <h3>Temperatura CPU</h3>
+                <div class="badge danger">
                   <ion-icon :icon="hardwareChipOutline"></ion-icon>
-                  <span>Normal</span>
+                  <span>{{ latestTemp }}°C</span>
                 </div>
               </div>
-              <CpuLineChart :data="cpuData" :labels="cpuLabels" color="#6366f1" />
+              <CpuLineChart
+                :data="cpuTempData"
+                :labels="tempLabels"
+                title="Temp. CPU (°C)"
+                color="#ef4444"
+              />
             </div>
           </ion-col>
+
           <ion-col size="12" size-lg="4.5">
             <div class="chart-card">
               <div class="card-header">
                 <h3>Memoria</h3>
                 <div class="badge warning">
                   <ion-icon :icon="serverOutline"></ion-icon>
-                  <span>65%</span>
+                  <span>85%</span>
                 </div>
               </div>
               <MemoryBarChart :data="memoryData" />
@@ -108,10 +116,13 @@ import {
   IonGrid, IonRow, IonCol
 } from '@ionic/vue'
 import {
-  codeSlashOutline, statsChartOutline, pulseOutline,
-  hardwareChipOutline, serverOutline, analyticsOutline,
-  barChartOutline, pieChartOutline
+  codeSlashOutline,
+  statsChartOutline,
+  pulseOutline,
+  hardwareChipOutline,
+  serverOutline
 } from 'ionicons/icons'
+import merge from 'lodash/merge'
 
 // Importar componentes
 import SparkLine from '@/components/SparkLine.vue'
@@ -121,158 +132,172 @@ import CpuLineChart from '@/components/CpuChart.vue'
 import MemoryBarChart from '@/components/MemoryBarChart.vue'
 import DistributionPieChart from '@/components/DistributionPieChart.vue'
 
-// Router para navegación
+// Navigator
 const router = useRouter()
-
-// Función para navegar a la página de KPIs
 const navigateToKpis = () => {
   router.push('/kpis')
 }
 
 // Datos para SparkLine
-const sparkData1 = ref({
-  title: 'CLICKS',
-  value: '1,234',
-  bgColor: 'gradient-blue',
-  iconName: 'navigate-outline',
-  chartOptions: {
-    chart: {
-      id: 'clicks',
-      type: 'area',
-      sparkline: { enabled: true },
-      toolbar: { show: false }
-    },
-    stroke: { curve: 'smooth', width: 2 },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.7,
-        opacityTo: 0.3,
-        stops: [0, 90, 100]
-      }
-    },
-    colors: ['#fff']
+const dataLogins = [120, 150, 110, 95, 140, 180, 170, 200, 220, 260]
+const dataViews  = [2300, 1550, 2480, 650, 2790, 2010, 3180, 3075, 2390, 3450]
+const dataErrors = [59, 49, 47, 35, 30, 28, 34, 28, 35, 42]
+
+// Generar etiquetas de los últimos 10 días
+const days = Array.from({ length: 10 }, (_, i) => {
+  const d = new Date()
+  d.setDate(d.getDate() - (9 - i))
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+})
+
+// Base de opciones comunes para sparklines
+const sparkBaseOptions = {
+  chart: {
+    height: 60,
+    sparkline: { enabled: true },
+    toolbar: { show: false },
+    dropShadow: { enabled: true, top: 1, left: 0, blur: 4, opacity: 0.2 },
+    animations: { enabled: true, easing: 'easeinout', speed: 500 },
+    margin: { top: 2, right: 2, bottom: 2, left: 2 }
   },
-  chartSeries: [{ data: [25, 66, 41, 59, 25, 44, 12, 36, 9, 21] }]
+  stroke: { curve: 'smooth', width: 3 },
+  fill: {
+    type: 'gradient',
+    gradient: {
+      shade: 'light',
+      shadeIntensity: 1,
+      opacityFrom: 0.9,
+      opacityTo: 0.5,
+      stops: [0,80,100]
+    }
+  },
+  markers: {
+    size: 3,
+    colors: ['#fff'],
+    strokeWidth: 1,
+    strokeColors: '#10b981',
+    hover: { size: 5 }
+  },
+  grid: {
+    show: true,
+    borderColor: 'rgba(255,255,255,0.2)',
+    strokeDashArray: 3,
+    xaxis: { lines: { show: false } },
+    yaxis: { lines: { show: true } }
+  },
+  xaxis: { categories: days, labels: { show: false } },
+  yaxis: { labels: { show: false } },
+  tooltip: {
+    theme: 'dark',
+    x: { show: true, formatter: (v:string) => `Día: ${v}` },
+    y: { formatter: (v:number) => `${v}` }
+  },
+  colors: ['#fff']
+}
+
+// Configuración de los tres sparklines
+const sparkData1 = ref({
+  title: 'LOGINS (Últimos 10 días)',
+  value: String(Math.floor(dataLogins.reduce((a,b)=>a+b,0)/dataLogins.length)),
+  bgColor: 'gradient-blue',
+  iconName: 'log-in-outline',
+  chartOptions: merge({}, sparkBaseOptions, {
+    chart: { id: 'logins-daily', type: 'area' },
+    yaxis: { min: 0, max: Math.max(...dataLogins) * 1.1 },
+    tooltip: { y: { formatter: (v:number) => `${v} logins` } }
+  }),
+  chartSeries: [{ name: 'Logins diarios', data: dataLogins }]
 })
 
 const sparkData2 = ref({
-  title: 'VIEWS',
-  value: '1,982',
+  title: 'WEB VIEWS (Últimos 10 días)',
+  value: String(Math.floor(dataViews.reduce((a,b)=>a+b,0)/dataViews.length)),
   bgColor: 'gradient-pink',
   iconName: 'eye-outline',
-  chartOptions: {
-    chart: {
-      id: 'views',
-      type: 'bar',
-      sparkline: { enabled: true },
-      toolbar: { show: false }
-    },
-    stroke: { width: 0 },
-    fill: { opacity: 1 },
-    colors: ['#fff']
-  },
-  chartSeries: [{ data: [25, 66, 41, 59, 25, 44, 12, 36, 9, 21] }]
+  chartOptions: merge({}, sparkBaseOptions, {
+    chart: { id: 'views-daily', type: 'area' },
+    yaxis: { min: 0, max: Math.max(...dataViews) * 1.1 },
+    tooltip: { y: { formatter: (v:number) => `${v} views` } }
+  }),
+  chartSeries: [{ name: 'Vistas diarias', data: dataViews }]
 })
 
 const sparkData3 = ref({
-  title: 'LEADS',
-  value: '2,011',
-  bgColor: 'gradient-orange',
-  iconName: 'people-outline',
-  chartOptions: {
-    chart: {
-      id: 'leads',
-      type: 'line',
-      sparkline: { enabled: true },
-      toolbar: { show: false }
-    },
-    stroke: { curve: 'straight', width: 3 },
-    colors: ['#fff']
-  },
-  chartSeries: [{ data: [25, 66, 41, 59, 25, 44, 12, 36, 9, 21] }]
+  title: 'ERRORES (Últimos 10 días)',
+  value: String(Math.floor(dataErrors.reduce((a,b)=>a+b,0)/dataErrors.length)),
+  bgColor: 'gradient-green',
+  iconName: 'bug-outline',
+  chartOptions: merge({}, sparkBaseOptions, {
+    chart: { id: 'errors-daily', type: 'line' },
+    stroke: { curve: 'straight', width: 2 },
+    markers: { size: 0 },
+    fill: { opacity: 0 },
+    yaxis: { min: 0, max: Math.max(...dataErrors) * 1.1 },
+    tooltip: { y: { formatter: (v:number) => `${v} errores` } }
+  }),
+  chartSeries: [{ name: 'Errores diarios', data: dataErrors }]
 })
 
-// Datos para gráfico en tiempo real
-const UPDATE_MS = 2000 // Cambiado de 1000 a 2000 para mejor rendimiento
-const MAX_POINTS = 30 // Reducido de 60 a 30 para mejor rendimiento
+// --- Métricas de uso de servidores en tiempo real ---
+const UPDATE_MS = 2000
+const MAX_POINTS = 30
 let lastX = Date.now()
-const dataRT = ref<{x: number; y: number}[]>([])
-const seriesRT = ref([{ name: 'Usuarios', data: dataRT.value }])
-
-// Valor para el gauge
-const currentUsers = ref(0)
-
-// Datos para el gráfico de CPU (ChartJS)
-const cpuData = ref([28, 45, 35, 55, 40, 65, 80, 74, 68, 85, 75, 62])
-const cpuLabels = ref(['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'])
-
-// Datos para el gráfico de memoria (ApexCharts)
-const memoryData = ref([
-  { name: 'App', value: 35, color: '#6366f1' },
-  { name: 'Sistema', value: 25, color: '#10b981' },
-  { name: 'Libre', value: 40, color: '#f59e0b' }
-])
-
-// Datos para el gráfico de distribución (ECharts)
-const distributionData = ref([
-  { name: 'iOS', value: 40, itemStyle: { color: '#6366f1' } },
-  { name: 'Android', value: 35, itemStyle: { color: '#10b981' } },
-  { name: 'Web', value: 25, itemStyle: { color: '#f59e0b' } }
-])
-
-// Lógica para actualizar datos en tiempo real
-let interval: ReturnType<typeof setInterval> | undefined
+const serverLoadData = ref<{ x: number; y: number }[]>([])
+const seriesLoad = ref([{ name: 'CPU (%)', data: serverLoadData.value }])
+const currentCpu = ref(0)
+let intervalId: ReturnType<typeof setInterval>
 
 function tick() {
-  // Genera punto aleatorio
   const x = lastX + UPDATE_MS
-  const y = Math.floor(Math.random() * 90) + 10
-  
-  // Limita el número de puntos ANTES de añadir el nuevo punto
-  if (dataRT.value.length >= MAX_POINTS) {
-    dataRT.value.shift()
-  }
-  
-  // Añade el nuevo punto
-  dataRT.value.push({ x, y })
+  const y = Math.floor(Math.random() * 70) + 20
+  if (serverLoadData.value.length >= MAX_POINTS) serverLoadData.value.shift()
+  serverLoadData.value.push({ x, y })
   lastX = x
-  
-  // Actualiza la serie con una nueva referencia para forzar la actualización
-  seriesRT.value = [{ 
-    name: 'Usuarios', 
-    data: [...dataRT.value] // Crear una nueva referencia del array
-  }]
-  
-  // Actualiza el gauge
-  currentUsers.value = y
+  seriesLoad.value = [{ name: 'CPU (%)', data: [...serverLoadData.value] }]
+  currentCpu.value = y
 }
 
 onMounted(() => {
-  // Iniciar con algunos datos
   const now = Date.now()
   for (let i = 0; i < 10; i++) {
-    const x = now - (10 - i) * UPDATE_MS
-    const y = Math.floor(Math.random() * 90) + 10
-    dataRT.value.push({ x, y })
+    serverLoadData.value.push({
+      x: now - (10 - i) * UPDATE_MS,
+      y: Math.floor(Math.random() * 70) + 20
+    })
   }
-  
-  // Iniciar intervalo
-  interval = setInterval(tick, UPDATE_MS)
+  intervalId = setInterval(tick, UPDATE_MS)
 })
 
 onUnmounted(() => {
-  if (interval) {
-    clearInterval(interval)
-  }
+  clearInterval(intervalId)
+})
+
+// --- Nuevos datos para Temperatura CPU ---
+const tempLabels = Array.from({ length: 24 }, (_, i) =>
+  `${String(i).padStart(2, '0')}:00`
+)
+const cpuTempData = ref<number[]>([])
+const latestTemp = ref<number>(0)
+
+onMounted(() => {
+  // Simulación de 24 lecturas entre 40°C y 80°C
+  const simulated: number[] = tempLabels.map(() =>
+    Math.floor(Math.random() * 40) + 40
+  )
+  cpuTempData.value = simulated
+  latestTemp.value = simulated[simulated.length - 1]
 })
 </script>
 
 <style scoped>
+:root {
+  --ion-color-bg-light: #f3f4f6;
+  --ion-color-bg-dark:  #e5e7eb;
+}
+
 /* Estilos para el header */
 .custom-toolbar {
-  --background: var(--ion-color-primary);
+  --background: #6B7280;
   --color: white;
   padding: 5px 0;
 }
@@ -289,14 +314,14 @@ onUnmounted(() => {
   font-size: 20px;
 }
 
-/* Estilos para el contenido */
+/* Estilos para el contenido sin scrollbars */
 .dashboard-content {
-  --background: #f9fafb;
+  --background: var(--ion-color-bg-dark);
   --padding-top: 8px;
   --padding-bottom: 8px;
   --padding-start: 8px;
   --padding-end: 8px;
-  overflow: hidden; /* Evitar scroll */
+  overflow: hidden !important;
 }
 
 ion-grid {
@@ -305,11 +330,11 @@ ion-grid {
 }
 
 ion-row {
-  margin-bottom: 10px; /* Reducido de 20px a 10px */
+  margin-bottom: 10px;
 }
 
 ion-col {
-  --ion-grid-column-padding: 8px; /* Reducido de 10px a 8px */
+  --ion-grid-column-padding: 8px;
 }
 
 /* Filas con alturas específicas */
@@ -329,18 +354,18 @@ ion-col {
   }
 }
 
-/* Añadir estilos para pantallas más pequeñas */
+/* Pantallas más pequeñas */
 @media (max-width: 991px) {
   .ion-row-2 > ion-col {
-    height: 300px; /* Altura fija para los contenedores en pantallas pequeñas */
+    height: 300px;
   }
 }
 
-/* Tarjetas de gráficos */
+/* Tarjetas de gráficos con fondo gris claro */
 .chart-card {
-  background: white;
+  background: var(--ion-color-bg-light);
   border-radius: 12px;
-  padding: 10px; /* Reducido de 16px a 10px */
+  padding: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   height: 100%;
   display: flex;
@@ -353,7 +378,7 @@ ion-col {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px; /* Reducido de 16px a 8px */
+  margin-bottom: 8px;
 }
 
 .card-header h3 {
