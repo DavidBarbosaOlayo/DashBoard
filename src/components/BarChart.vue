@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick, computed } from 'vue'
 import ApexChart from 'vue3-apexcharts'
 import type { ApexOptions } from 'apexcharts'
 
@@ -27,11 +27,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  series:    () => [{ name: 'Actividades', data: [320,450,390,580,610,720,800] }],
-  categories:() => ['01–07 Mar','08–14 Mar','15–21 Mar','22–28 Mar','29 Mar–04 Abr','05–11 Abr','12–18 Abr'],
-  title:     'Actividades',
-  color:     '#f59e0b', // Cambiado a color ámbar
-  unit:      ' actividades'
+  series:     () => [{ name: 'Actividades', data: [320,450,390,580,610,720,800] }],
+  categories: () => ['01–07 Mar','08–14 Mar','15–21 Mar','22–28 Mar','29 Mar–04 Abr','05–11 Abr','12–18 Abr'],
+  title:      'Actividades',
+  color:      '#F8BBD0',   // Base rosa claro
+  unit:       ' actividades'
 })
 
 const chartSeries = ref<Serie[]>(props.series)
@@ -40,13 +40,46 @@ function yFormatter(value: number) {
   return value.toFixed(0)
 }
 
-// Colores para las barras - Paleta cálida sin azules
-const barColors = ['#f59e0b', '#f97316', '#ef4444', '#ec4899', '#d946ef']
+// Función para interpolar entre dos colores
+function interpolateColor(color1: string, color2: string, factor: number): string {
+  const hex1 = color1.replace('#', '')
+  const hex2 = color2.replace('#', '')
+  const r1 = parseInt(hex1.substr(0, 2), 16)
+  const g1 = parseInt(hex1.substr(2, 2), 16)
+  const b1 = parseInt(hex1.substr(4, 2), 16)
+  const r2 = parseInt(hex2.substr(0, 2), 16)
+  const g2 = parseInt(hex2.substr(2, 2), 16)
+  const b2 = parseInt(hex2.substr(4, 2), 16)
+  const r = Math.round(r1 + (r2 - r1) * factor)
+  const g = Math.round(g1 + (g2 - g1) * factor)
+  const b = Math.round(b1 + (b2 - b1) * factor)
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
+// Computed de colores dinámicos usando una gama de rosados/magentas
+const dynamicColors = computed(() => {
+  if (!props.series || props.series.length === 0) return ['#F8BBD0']
+
+  const allValues = props.series.flatMap(serie => serie.data)
+  const minValue = Math.min(...allValues)
+  const maxValue = Math.max(...allValues)
+  const range = maxValue - minValue
+
+  // Gama de rosa claro a magenta intenso
+  const lowColor  = '#F8BBD0' // rosa claro
+  const highColor = '#C2185B' // magenta oscuro
+
+  return allValues.map(value => {
+    if (range === 0) return lowColor
+    const normalized = (value - minValue) / range
+    return interpolateColor(lowColor, highColor, normalized)
+  })
+})
 
 const chartOptions = ref<ApexOptions>({
   chart: {
     id: 'bar',
-    foreColor: '#e2e8f0', // Color de texto más claro para tema oscuro
+    foreColor: '#e2e8f0',
     background: 'transparent',
     toolbar: { show: false },
     fontFamily: 'Inter, sans-serif',
@@ -66,15 +99,13 @@ const chartOptions = ref<ApexOptions>({
       color: '#000'
     }
   },
-  colors: barColors, // Usar la paleta de colores cálidos
+  colors: dynamicColors.value,
   plotOptions: {
-    bar: { 
-      borderRadius: 8, 
+    bar: {
+      borderRadius: 8,
       columnWidth: '65%',
-      distributed: true, // Distribuir colores entre barras
-      dataLabels: {
-        position: 'top'
-      }
+      distributed: true,
+      dataLabels: { position: 'top' }
     }
   },
   dataLabels: {
@@ -97,14 +128,13 @@ const chartOptions = ref<ApexOptions>({
   },
   xaxis: {
     categories: props.categories,
-    labels: { 
-      style: { 
-        fontFamily: 'Inter, sans-serif', 
+    labels: {
+      style: {
+        fontFamily: 'Inter, sans-serif',
         fontWeight: 500,
-        colors: '#cbd5e1' // Color más claro para las etiquetas
+        colors: '#cbd5e1'
       },
       rotate: -45,
-      rotateAlways: false,
       hideOverlappingLabels: true,
       trim: true,
       maxHeight: 120
@@ -114,47 +144,38 @@ const chartOptions = ref<ApexOptions>({
     crosshairs: {
       show: true,
       position: 'back',
-      stroke: {
-        color: '#475569',
-        width: 1,
-        dashArray: 3
-      }
+      stroke: { color: '#475569', width: 1, dashArray: 3 }
     }
   },
   yaxis: {
-    title: { 
-      text: props.yAxisTitle, 
-      style: { 
-        fontFamily: 'Inter, sans-serif', 
-        fontWeight: 500,
-        color: '#e2e8f0' // Color más claro para el título
-      } 
-    },
-    labels: { 
-      formatter: yFormatter,
+    title: {
+      text: props.yAxisTitle,
       style: {
-        colors: '#cbd5e1' // Color más claro para las etiquetas
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 500,
+        color: '#e2e8f0'
       }
     },
-    min: 0, // Forzar que el eje Y comience en 0
+    labels: {
+      formatter: yFormatter,
+      style: { colors: '#cbd5e1' }
+    },
+    min: 0,
     forceNiceScale: true,
     tickAmount: 5
   },
   tooltip: {
     theme: 'dark',
     x: { show: true },
-    y: { 
-      title: { formatter: seriesName => seriesName },
+    y: {
+      title: { formatter: (seriesName) => seriesName },
       formatter: (value) => `${value.toLocaleString()}${props.unit}`
     },
     marker: { show: false },
-    style: {
-      fontSize: '12px',
-      fontFamily: 'Inter, sans-serif'
-    }
+    style: { fontSize: '12px', fontFamily: 'Inter, sans-serif' }
   },
   grid: {
-    borderColor: '#334155', // Color más oscuro para los bordes
+    borderColor: '#334155',
     strokeDashArray: 4,
     padding: { top: 20, right: 10, bottom: 10, left: 20 }
   },
@@ -174,24 +195,13 @@ const chartOptions = ref<ApexOptions>({
       stops: [0, 90, 100]
     }
   },
-  legend: {
-    show: false // Ocultar leyenda para gráfico distribuido
-  },
+  legend: { show: false },
   responsive: [
     {
       breakpoint: 768,
       options: {
-        plotOptions: {
-          bar: {
-            columnWidth: '80%'
-          }
-        },
-        xaxis: {
-          labels: {
-            rotate: -90,
-            offsetY: 0
-          }
-        }
+        plotOptions: { bar: { columnWidth: '80%' } },
+        xaxis: { labels: { rotate: -90, offsetY: 0 } }
       }
     }
   ]
@@ -201,16 +211,9 @@ watch(
   () => [props.series, props.categories, props.color, props.yAxisTitle],
   () => {
     chartSeries.value = props.series
-    
-    // Si el usuario proporciona un color específico que no es el predeterminado,
-    // usamos ese color para todas las barras
-    const newColors = props.color !== '#6366f1' ? 
-      (props.series.length > 1 ? [props.color] : barColors) : 
-      barColors;
-    
     chartOptions.value = {
       ...chartOptions.value,
-      colors: newColors,
+      colors: dynamicColors.value,
       plotOptions: {
         ...chartOptions.value.plotOptions,
         bar: {
@@ -218,22 +221,13 @@ watch(
           distributed: props.series.length === 1
         }
       },
-      xaxis: { 
-        ...chartOptions.value.xaxis, 
-        categories: props.categories 
+      xaxis: { ...chartOptions.value.xaxis, categories: props.categories },
+      yaxis: {
+        ...chartOptions.value.yaxis,
+        title: { ...chartOptions.value.yaxis?.title, text: props.yAxisTitle },
+        min: 0
       },
-      yaxis: { 
-        ...chartOptions.value.yaxis, 
-        title: { 
-          ...chartOptions.value.yaxis?.title,
-          text: props.yAxisTitle 
-        },
-        min: 0 // Asegurar que siempre comience en 0
-      },
-      legend: {
-        ...chartOptions.value.legend,
-        show: props.series.length > 1
-      }
+      legend: { ...chartOptions.value.legend, show: props.series.length > 1 }
     }
   },
   { deep: true }
@@ -244,6 +238,8 @@ onMounted(async () => {
   window.dispatchEvent(new Event('resize'))
 })
 </script>
+
+
 
 <style scoped>
 .chart-container {

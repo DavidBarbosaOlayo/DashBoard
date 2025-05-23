@@ -169,9 +169,9 @@ const RadarChart = defineAsyncComponent(() => import('@/components/RadarChart.vu
 
 // --- Datos KPI ---
 const kpis = [
-  { key: 'users', icon: peopleOutline, value: '28.2K', label: 'Usuarios', trend: 12 },
-  { key: 'downloads', icon: downloadOutline, value: '45.8K', label: 'Descargas', trend: 23 },
-  { key: 'revenue', icon: cashOutline, value: '€132.5K', label: 'Ingresos', trend: -5 }
+  { key: 'users', icon: peopleOutline, value: '38.2K', label: 'Usuarios', trend: 12 },
+  { key: 'downloads', icon: downloadOutline, value: '165.8K', label: 'Descargas', trend: 23 },
+  { key: 'revenue', icon: cashOutline, value: '€232.5K', label: 'Ingresos', trend: -5 }
 ]
 
 // --- Datos para barra ---
@@ -202,7 +202,7 @@ const lineSeriesComputed = computed(() => lineData[selectedPeriod.value].series)
 
 // --- Datos para donut ---
 const donutLabels = ['España', 'Francia', 'Italia', 'Alemania', 'Portugal']
-const donutValues = [350, 200, 100, 80, 70]
+const donutValues = [2394, 2277, 1221, 992, 770]
 const donutColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
 // --- Datos para radar ---
@@ -215,19 +215,22 @@ const radarIndicators = ref<Indicator[]>([
   { name: 'Cobertura geográfica', max: 100 }
 ])
 const radarData = ref([
-  { name: 'Uso actual', value: [65, 77, 55, 53, 39] },
+  { name: 'Uso actual', value: [41, 77, 55, 53, 39] },
   { name: 'Objetivo',   value: [90, 95, 85, 90, 80] }
 ])
 
 // --- Datos aleatorios para el mapa ---
 const mapData = ref([
-  { country: 'España',       value: 12000 },
-  { country: 'Francia',      value: 10000 },
-  { country: 'Alemania',     value:  8000 },
-  { country: 'Italia',       value:  6000 },
-  { country: 'Portugal',     value:  4000 },
-  { country: 'Países Bajos', value:  2000 },
-  { country: 'Polonia',      value:  1000 }
+  { country: 'España',       value: 12896 },
+  { country: 'Francia',      value: 11611 },
+  { country: 'Alemania',     value:  9960 },
+  { country: 'Italia',       value:  7645 },
+  { country: 'Portugal',     value:  5312 },
+  { country: 'Países Bajos', value:  3308 },
+  { country: 'Polonia',      value:  1024 },
+  { country: 'Suecia',       value:  512 },
+  { country: 'Bélgica',      value:  256 },
+  { country: 'República Checa', value: 128 }
 ])
 </script>
 

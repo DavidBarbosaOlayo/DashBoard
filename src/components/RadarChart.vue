@@ -31,20 +31,19 @@ const props = defineProps<{
 
 const option = ref({
   tooltip: {},
- legend: {
-  orient: 'vertical',
-  left: '3%',
-  top: '10%',         // antes 'middle', ahora sube al 30% del alto
-  data: props.data.map(d => d.name),
-  textStyle: { color: '#E5E7EB' },
-  itemGap: 20         // mantiene 20px entre filas
-},
+  legend: {
+    orient: 'vertical',
+    left: '3%',
+    top: '10%',
+    data: props.data.map(d => d.name),
+    textStyle: { color: '#E5E7EB' },
+    itemGap: 20
+  },
 
   radar: {
     shape: 'circle',
     splitNumber: 5,
     radius: '83%',
-    // El centro queda por defecto en ['50%', '50%']
     indicator: props.indicators,
     splitLine: { lineStyle: { color: 'rgba(229,231,235,0.2)' } },
     axisLine:  { lineStyle: { color: 'rgba(229,231,235,0.3)' } },
@@ -61,9 +60,9 @@ const option = ref({
       name: props.data[0]?.name || 'Actual',
       type: 'radar',
       data: [props.data[0]],
-      lineStyle: { color: '#ef4444', width: 2 },
-      itemStyle: { color: '#ef4444' },
-      areaStyle: { color: 'rgba(239,68,68,0.6)' },
+      lineStyle:  { color: '#F97316', width: 2 },             // naranja intenso
+      itemStyle:  { color: '#F97316' },                        // naranja intenso
+      areaStyle:  { color: 'rgba(249,115,22,0.6)' },           // naranja con opacidad
       label: {
         show: true,
         color: '#E5E7EB',
