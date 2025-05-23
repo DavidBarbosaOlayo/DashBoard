@@ -27,7 +27,7 @@ const chartOptions = computed<ApexOptions>(() => ({
   chart: {
     id: 'realtime',
     type: 'line',
-    foreColor: '#374151',           // <- color oscuro para todo el texto
+    foreColor: '#374151',
     animations: {
       enabled: true,
       easing: 'linear',
@@ -38,8 +38,16 @@ const chartOptions = computed<ApexOptions>(() => ({
     background: 'transparent',
     fontFamily: 'Inter, sans-serif'
   },
-  stroke: { curve: 'smooth', width: 3, colors: [props.color] },
-  markers: { size: 0, hover: { size: 5 } },
+  stroke: {
+    curve: 'smooth',
+    width: 3,
+    colors: [props.color]
+  },
+  markers: {
+    size: 0,
+    hover: { size: 5 },
+    colors: [props.color]
+  },
   xaxis: {
     type: 'datetime',
     labels: {
@@ -66,12 +74,17 @@ const chartOptions = computed<ApexOptions>(() => ({
   grid: {
     borderColor: '#e5e7eb',
     strokeDashArray: 4,
+    yaxis: { lines: { show: true } },
     padding: { top: 0, right: 0, bottom: 0, left: 10 }
   },
   title: {
     text: props.title,
     align: 'left',
-    style: { fontSize: '16px', fontFamily: 'Inter, sans-serif', fontWeight: 600 }
+    style: {
+      fontSize: '16px',
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 600
+    }
   },
   annotations: {
     yaxis: [{
@@ -87,16 +100,9 @@ const chartOptions = computed<ApexOptions>(() => ({
     }]
   },
   fill: {
-    type: 'gradient',
-    gradient: {
-      shade: 'dark',
-      type: 'vertical',
-      shadeIntensity: 0.3,
-      inverseColors: false,
-      opacityFrom: 0.8,
-      opacityTo: 0.2,
-      stops: [0, 90, 100]
-    }
+    type: 'solid',       // define relleno sólido
+    colors: [props.color],
+    opacity: 0.3         // intensidad uniforme en todo el área
   }
 }))
 

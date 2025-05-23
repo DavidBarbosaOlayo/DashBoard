@@ -57,7 +57,7 @@
           </div>
           <div class="chart-card">
             <div class="card-header">
-              <h3>Tareas semanales registradas</h3>
+              <h3>Tareas registradas</h3>
               <ion-button fill="clear" size="small">
                 <ion-icon slot="icon-only" :icon="ellipsisHorizontal" />
               </ion-button>
@@ -99,7 +99,7 @@
         <div class="chart-row">
           <div class="chart-card">
             <div class="card-header">
-              <h3>Actividades por países</h3>
+              <h3>Actividades mensuales</h3>
               <ion-button fill="clear" size="small">
                 <ion-icon slot="icon-only" :icon="ellipsisHorizontal" />
               </ion-button>
@@ -215,14 +215,20 @@ const radarIndicators = ref<Indicator[]>([
   { name: 'Cobertura geográfica', max: 100 }
 ])
 const radarData = ref([
-  { name: 'Uso actual', value: [65, 82, 55, 53, 39] },
+  { name: 'Uso actual', value: [65, 77, 55, 53, 39] },
   { name: 'Objetivo',   value: [90, 95, 85, 90, 80] }
 ])
 
 // --- Datos aleatorios para el mapa ---
-const countries = ['Spain','Germany','France','Italy','Netherlands','Poland','Portugal']
-function getRandomInt(max: number) { return Math.floor(Math.random() * (max + 1)) }
-const mapData = ref(countries.map(c => ({ country: c, value: getRandomInt(12000) })))
+const mapData = ref([
+  { country: 'España',       value: 12000 },
+  { country: 'Francia',      value: 10000 },
+  { country: 'Alemania',     value:  8000 },
+  { country: 'Italia',       value:  6000 },
+  { country: 'Portugal',     value:  4000 },
+  { country: 'Países Bajos', value:  2000 },
+  { country: 'Polonia',      value:  1000 }
+])
 </script>
 
 <style scoped>

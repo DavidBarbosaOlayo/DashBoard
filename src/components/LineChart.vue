@@ -22,69 +22,106 @@ interface Props {
   color?: string
 }
 const props = withDefaults(defineProps<Props>(), {
-  series: () => [{ name:'Recintos Activos', data:[5,12,8,15,10,18,20] }],
+  series:     () => [{ name: 'Recintos Activos', data: [5,12,8,15,10,18,20] }],
   categories: () => ['Ene','Feb','Mar','Abr','May','Jun','Jul'],
-  title: 'Evolución',
-  color: '#10b981'
+  title:      'Evolución',
+  color:      '#10b981'
 })
 
-const chartSeries = ref<Serie[]>(props.series)
+const chartSeries = ref<Serie[]>(props.series!)
 
 const chartOptions = ref<ApexOptions>({
   chart: {
-    foreColor: '#374151',
+    foreColor:  '#374151',
     background: 'transparent',
-    toolbar: { show: false },
+    toolbar:    { show: false },
     fontFamily: 'Inter, sans-serif',
-    dropShadow: { enabled: true, top: 10, left: 0, blur: 3, opacity: 0.1 },
+    dropShadow: {
+      enabled: true,
+      top:     2,
+      left:    0,
+      blur:    6,
+      opacity: 0.4
+    },
     animations: {
       enabled: true,
-      easing: 'easeinout',
-      speed: 800,
+      easing:  'easeinout',
+      speed:   800,
       animateGradually: { enabled: true, delay: 150 },
       dynamicAnimation: { enabled: true, speed: 350 }
-    }
+    },
+    offsetX: 10
   },
-  colors: [props.color],
-  stroke: { curve: 'smooth', width: 3 },
+  colors: [props.color!],
+  stroke: {
+    curve: 'smooth',
+    width: 5
+  },
   markers: {
-    size: 5,
-    colors: [props.color],
+    size:         8,
+    colors:       [props.color!],
     strokeColors: '#fff',
-    strokeWidth: 2,
-    hover: { size: 7 }
+    strokeWidth:  2,
+    hover:        { size: 10 }
   },
   xaxis: {
-    categories: props.categories,
-    labels: { style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } },
+    categories:    props.categories,
+    offsetX:       0,
+    tickPlacement: 'between',
+    labels: {
+      style: {
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 500
+      }
+    },
     axisBorder: { show: false },
-    axisTicks: { show: false }
+    axisTicks:  { show: false }
   },
   yaxis: {
-    title: { style: { fontFamily: 'Inter, sans-serif', fontWeight: 500 } }
-  },
-  tooltip: {
-    theme: 'dark',                     // <- tooltip oscuro
-    x: { show: true },
-    y: { title: { formatter: seriesName => seriesName } },
-    marker: { show: true }
+    min:           0,
+    forceNiceScale: true,
+    tickAmount:     4,
+    title: {
+      style: {
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 500
+      }
+    },
+    labels: {
+      style: {
+        fontFamily: 'Inter, sans-serif'
+      }
+    }
   },
   grid: {
-    borderColor: '#e5e7eb',
+    borderColor:    '#e5e7eb',
     strokeDashArray: 4,
-    padding: { top: 0, right: 0, bottom: 0, left: 10 }
+    padding: {
+      left:   30,
+      right:  10,
+      top:    10,
+      bottom: 10
+    }
   },
   fill: {
     type: 'gradient',
     gradient: {
-      shade: 'light',
-      type: 'vertical',
-      shadeIntensity: 0.3,
+      shade:         'light',
+      type:          'vertical',
+      shadeIntensity: 0.5,
       inverseColors: false,
-      opacityFrom: 0.8,
-      opacityTo: 0.2,
-      stops: [0, 90, 100]
+      opacityFrom:   0.6,
+      opacityTo:     0.1,
+      stops:         [0, 90, 100]
     }
+    // Si prefieres sin relleno, usar:
+    // opacity: 0
+  },
+  tooltip: {
+    theme: 'dark',
+    x:     { show: true },
+    y:     { title: { formatter: seriesName => seriesName } },
+    marker: { show: true }
   }
 })
 
@@ -93,7 +130,10 @@ watch(props, () => {
   chartOptions.value = {
     ...chartOptions.value,
     colors: [props.color!],
-    xaxis: { ...chartOptions.value.xaxis!, categories: props.categories }
+    xaxis: {
+      ...(chartOptions.value.xaxis as any),
+      categories: props.categories
+    }
   }
 })
 
@@ -102,6 +142,7 @@ onMounted(async () => {
   window.dispatchEvent(new Event('resize'))
 })
 </script>
+
 
 <style scoped>
 .chart-container {

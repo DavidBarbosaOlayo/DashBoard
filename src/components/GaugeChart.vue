@@ -14,16 +14,14 @@ import { TooltipComponent } from 'echarts/components'
 
 use([GaugeChart, CanvasRenderer, TooltipComponent])
 
-/* ▸ props ------------------------------------------------------------- */
 interface Props {
-  value: number          // 0-100 %
+  value: number
   title?: string
 }
 const props = withDefaults(defineProps<Props>(), {
   title: 'Conversión'
 })
 
-/* ▸ opción reactiva --------------------------------------------------- */
 const options = ref({})
 
 watchEffect(() => {
@@ -39,25 +37,23 @@ watchEffect(() => {
           lineStyle: {
             width: 20,
             color: [
-              [0.2, '#ef4444'],   // 0-20% rojo
-              [0.4, '#f59e0b'],   // 20-40% ámbar
-              [0.6, '#6366f1'],   // 40-60% indigo
-              [1.0, '#10b981']    // 60-100% verde
+              [0.2, '#ef4444'],
+              [0.4, '#f59e0b'],
+              [0.6, '#6366f1'],
+              [1.0, '#10b981']
             ]
           }
         },
-        pointer: { 
-          length: '60%', 
+        pointer: {
+          length: '60%',
           width: 6,
-          itemStyle: {
-            color: 'auto'
-          }
+          itemStyle: { color: 'auto' }
         },
         axisTick: {
           distance: -20,
           length: 8,
           lineStyle: {
-            color: '#fff',
+            color: '#E5E7EB',
             width: 2
           }
         },
@@ -65,12 +61,12 @@ watchEffect(() => {
           distance: -20,
           length: 20,
           lineStyle: {
-            color: '#fff',
+            color: '#E5E7EB',
             width: 3
           }
         },
         axisLabel: {
-          color: '#374151', // Cambiar de '#6b7280' a un color más oscuro
+          color: '#E5E7EB',
           distance: -40,
           fontSize: 12,
           fontFamily: 'Inter, sans-serif'
@@ -80,13 +76,13 @@ watchEffect(() => {
           fontSize: 28,
           fontWeight: 'bold',
           formatter: '{value}%',
-          color: '#111827',
+          color: '#E5E7EB',
           offsetCenter: [0, '30%'],
           fontFamily: 'Inter, sans-serif'
         },
         title: {
           offsetCenter: [0, '70%'],
-          color: '#374151', // Cambiar de '#6b7280' a un color más oscuro
+          color: '#E5E7EB',
           fontSize: 14,
           fontFamily: 'Inter, sans-serif'
         },
@@ -99,7 +95,6 @@ watchEffect(() => {
 })
 
 onMounted(() => {
-  // Asegurarse de que el gráfico se renderice correctamente
   setTimeout(() => {
     window.dispatchEvent(new Event('resize'))
   }, 300)
@@ -113,8 +108,8 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* Añadir overflow hidden */
-  position: relative; /* Asegurar posicionamiento correcto */
+  overflow: hidden;
+  position: relative;
 }
 .gauge {
   width: 100%;

@@ -32,7 +32,7 @@ const chartSeries = ref<number[]>(props.values)
 
 const chartOptions = ref<ApexOptions>({
   chart: {
-    foreColor: '#374151',           // <- color oscuro para todo el texto
+    foreColor: '#374151',
     background: 'transparent',
     fontFamily: 'Inter, sans-serif',
     animations: {
@@ -46,17 +46,24 @@ const chartOptions = ref<ApexOptions>({
   labels: props.labels,
   colors: props.colors,
   legend: {
-    position: 'bottom',
+    show: true,
+    position: 'left',
+    floating: false,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: 'Inter, sans-serif',
     fontSize: '14px',
     markers: { width: 12, height: 12, radius: 6 },
-    itemMargin: { horizontal: 10, vertical: 5 },
+    itemMargin: {
+      horizontal: 8,
+      vertical: 8    // menos espaciado
+    },
     labels: { colors: '#374151' }
   },
   plotOptions: {
     pie: {
       donut: {
-        size: '65%',
+        size: '55%',
         labels: {
           show: true,
           name: {
@@ -77,7 +84,7 @@ const chartOptions = ref<ApexOptions>({
             fontFamily: 'Inter, sans-serif',
             fontWeight: 600,
             color: '#111827',
-            formatter: w => w.globals.seriesTotals.reduce((a,b)=>a+b,0).toString()
+            formatter: w => w.globals.seriesTotals.reduce((a, b) => a + b, 0).toString()
           }
         }
       }
@@ -90,7 +97,12 @@ const chartOptions = ref<ApexOptions>({
     breakpoint: 480,
     options: {
       chart: { height: 300 },
-      legend: { position: 'bottom' }
+      legend: {
+        position: 'bottom',
+        horizontalAlign: 'center',
+        floating: false,
+        itemMargin: { horizontal: 8, vertical: 8 }
+      }
     }
   }]
 })
@@ -114,5 +126,11 @@ onMounted(async () => {
 .chart-container {
   width: 100%;
   height: calc(100% - 30px);
+}
+
+/* Solo margen entre filas, sin cambiar display */
+.chart-container ::v-deep .apexcharts-legend-series {
+  margin-bottom: 15px !important;
+  vertical-align: middle;
 }
 </style>
